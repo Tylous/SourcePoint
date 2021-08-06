@@ -1,0 +1,22 @@
+Stage: "False"
+Host: "acme-email.com"
+Keystore: 
+Password: 
+Metadata: "netbios"
+Injector: "VirtualAllocEx"
+Outfile: "acme.profile"
+PE_Clone: 20
+Profile: 2
+Allocation: 5312
+Jitter: 30
+Debug: true
+Sleep: 35
+Uri: 3
+Useragent:  "Mac"
+Post-EX Processname: 11
+Datajitter: 40
+Keylogger: "SetWindowsHookEx"
+Customuri: 
+CDN:
+CDN_Value: 
+ProfilePath:
