@@ -1,7 +1,7 @@
 package main
 
 import (
-	Loader "SourcePoint/loader"
+	Loader "SourcePoint/Loader"
 	"flag"
 	"fmt"
 	"io/ioutil"
