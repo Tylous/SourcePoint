@@ -247,7 +247,7 @@ func GeneratePE(beacon_PE string) map[string]string {
 	Beacon_Stage_p2.Variables = make(map[string]string)
 	if beacon_PE == "" {
 		PE_Num, _ := strconv.Atoi(Utils.GenerateNumer(0, 25))
-		Beacon_Stage_p2.Variables["pe"] = Struct.Post_EX_Process_Name[PE_Num]
+		Beacon_Stage_p2.Variables["pe"] = Struct.Peclone_list[PE_Num]
 	}
 	if beacon_PE != "" {
 		PE_Num, _ := strconv.Atoi(beacon_PE)
