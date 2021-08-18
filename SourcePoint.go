@@ -77,7 +77,7 @@ func (c *conf) getConf(yamlfile string) *conf {
 
 func options() *FlagOptions {
 	sleeptime := flag.String("Sleep", "", "Inital beacon sleep time")
-	stage := flag.String("Stage", "False", "Disable host staging (Default: False)")
+	stage := flag.String("Stage", "false", "Disable host staging (Default: False)")
 	jitter := flag.String("Jitter", "", "Jitter percentage for beacon call home")
 	useragent := flag.String("Useragent", "", `UserAgent string for the beacon to use (Leave blank to randomly select one):
 [*] Win10Chrome

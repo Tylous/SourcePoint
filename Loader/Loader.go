@@ -101,10 +101,10 @@ func GenerateComunication(stage, sleeptime, jitter, useragent, datajitter string
 	Beacon_Com.Variables = make(map[string]string)
 	var HostStageMessage string
 	if stage == "False" {
-		Beacon_Com.Variables["stage"] = "False"
+		Beacon_Com.Variables["stage"] = "false"
 		HostStageMessage = "[!] Host Staging Is Disabled - Staged Payloads Are Not Available But Your Beacon Payload Is Not Available To Anyone That Connects"
 	} else {
-		Beacon_Com.Variables["stage"] = "True"
+		Beacon_Com.Variables["stage"] = "true"
 		HostStageMessage = "[!] Host Staging Is Enabled - Staged Payloads Are Available But Your Beacon Payload Is Available To Anyone That Connects To Your Server To Request It"
 	}
 	if sleeptime != "" {
@@ -239,6 +239,10 @@ func GenerateHTTPVaribles(Host, metadata, uri, customuri, CDN, CDN_Value, Profil
 	Beacon_GETPOST.Variables["number64"] = Utils.GenerateNumer(19340, 15360000)
 	Beacon_GETPOST.Variables["number86"] = Utils.GenerateNumer(19340, 15360000)
 
+	Beacon_GETPOST.Variables["namprdnumber"] = Utils.GenerateNumer(2, 8)
+	Beacon_GETPOST.Variables["maxage"] = Utils.GenerateNumer(172800, 31536001)
+	Beacon_GETPOST.Variables["Age"] = Utils.GenerateNumer(1222, 2500)
+
 	return Beacon_GETPOST.Variables
 }
 
@@ -293,7 +297,8 @@ func GenerateProfile(Profile, CDN, CDN_Value, cert_password, custom_cert, Profil
 	Beacon_SSL.Variables = make(map[string]string)
 	if Profile == "" {
 		num_Profile, _ = strconv.Atoi(Utils.GenerateNumer(0, 4))
-		Beacon_SSL.Variables["Cert"] = Struct.Cert[num_Profile]
+		CNAME := "\rhttps-certificate {\rset CN       \"" + hostname + "\"; #Common Name"
+		Beacon_SSL.Variables["Cert"] = CNAME + Struct.Cert[num_Profile]
 		Beacon_GETPOST_Profile.Variables["Profile"] = Struct.HTTP_GET_POST_list[num_Profile]
 	}
 	if Profile != "" {
@@ -348,11 +353,6 @@ func GenerateProfile(Profile, CDN, CDN_Value, cert_password, custom_cert, Profil
 		Beacon_SSL.Variables["Password"] = cert_password
 
 	}
-
-	Beacon_GETPOST_Profile.Variables["namprdnumber"] = Utils.GenerateNumer(2, 8)
-	Beacon_GETPOST_Profile.Variables["maxage"] = Utils.GenerateNumer(172800, 31536001)
-	Beacon_GETPOST_Profile.Variables["Age"] = Utils.GenerateNumer(1222, 2500)
-
 	return Beacon_GETPOST_Profile.Variables, Beacon_SSL.Variables
 }
 
