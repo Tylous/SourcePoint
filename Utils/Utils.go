@@ -104,7 +104,7 @@ func GenerateURIValues(numb int, profile_type int, Post bool, customuri string) 
 	if profile_type == 7 {
 		baseuri = "" + customuri + ""
 	}
-	uri = "set uri \""
+	uri = "set uri \""+"/"
 	for ii := 1; ii <= numb; ii++ {
 		rand.Seed(time.Now().UnixNano())
 		if profile_type == 1 {
