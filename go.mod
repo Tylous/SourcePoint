@@ -1,4 +1,4 @@
-module SourcePoint
+module github.com/Tylous/SourcePoint
 
 go 1.15
 

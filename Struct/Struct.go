@@ -389,6 +389,12 @@ var Useragent_list = []string{
 
 var HTTP_GET_POST_list = []string{
 	`
+http-config {
+
+	#set "true" if teamserver is behind redirector
+	set trust_x_forwarded_for "{{.Variables.forward}}";			
+}
+
 http-get {
 {{.Variables.HTTP_GET_URI}}
 
@@ -464,9 +470,8 @@ http-stager {
 
 http-config {
 
-#set "true" if teamserver is behind redirector
-set trust_x_forwarded_for "false";
-
+	#set "true" if teamserver is behind redirector
+	set trust_x_forwarded_for "{{.Variables.forward}}";			
 }
 
 http-get {
@@ -645,16 +650,16 @@ header "X-Via" "haproxy-www-suhx";
 }	
 `, `
 http-config {
-set headers "Server, Content-Type, Brightspot-Id, Cache-Control, X-Content-Type-Options, X-Powered-By, Vary, Connection";
-header "Content-Type" "text/html;charset=UTF-8";
-header "Connection" "close";
-header "Brightspot-Id" "00000459-72af-a783-feef2189";
-header "Cache-Control" "max-age={{.Variables.maxage}}";
-header "Server" "Apache-Coyote/1.1";
-header "X-Content-Type-Options" "nosniff";
-header "X-Powered-By" "Brightspot";
-header "Vary" "Accept-Encoding";
-	set trust_x_forwarded_for "false";
+	set headers "Server, Content-Type, Brightspot-Id, Cache-Control, X-Content-Type-Options, X-Powered-By, Vary, Connection";
+	header "Content-Type" "text/html;charset=UTF-8";
+	header "Connection" "close";
+	header "Brightspot-Id" "00000459-72af-a783-feef2189";
+	header "Cache-Control" "max-age={{.Variables.maxage}}";
+	header "Server" "Apache-Coyote/1.1";
+	header "X-Content-Type-Options" "nosniff";
+	header "X-Powered-By" "Brightspot";
+	header "Vary" "Accept-Encoding";
+	set trust_x_forwarded_for "{{.Variables.forward}}";
 
 }
 
@@ -796,6 +801,11 @@ http-get {
 
 {{.Variables.HTTP_GET_URI}}
 
+http-config {
+
+	#set "true" if teamserver is behind redirector
+	set trust_x_forwarded_for "{{.Variables.forward}}";			
+}
 client {
 
 header "Host" "{{.Variables.Host}}";
@@ -918,6 +928,12 @@ server {
 }
 `, `
 
+http-config {
+
+	#set "true" if teamserver is behind redirector
+	set trust_x_forwarded_for "{{.Variables.forward}}";			
+}
+
 http-get {
 
 {{.Variables.HTTP_GET_URI}}
@@ -983,9 +999,15 @@ server {
 	}
 }
 }`, `
+http-config {
+
+	#set "true" if teamserver is behind redirector
+	set trust_x_forwarded_for "{{.Variables.forward}}";			
+}
 http-get {
 
 {{.Variables.HTTP_GET_URI}}
+
 
 client {
 	header "Host" "{{.Variables.Host}}";
@@ -1044,6 +1066,12 @@ server {
 }
 }
 `, `
+
+http-config {
+
+	#set "true" if teamserver is behind redirector
+	set trust_x_forwarded_for "{{.Variables.forward}}";			
+}
 http-get {
 
 {{.Variables.HTTP_GET_URI}}
@@ -1226,12 +1254,9 @@ func Beacon_Stage_Struct_p3() string {
 		strrep "ReflectiveLoader" "";
 		strrep "This program cannot be run in DOS mode" "";
 		strrep "NtQueueApcThread" "";
-		strrep "IsWow64Process" "";
 		strrep "HTTP/1.1 200 OK" "";
 		strrep "Stack memory was corrupted" "";
-		strrep "kernel32" "";
 		strrep "beacon.dll" "";
-		strrep "KERNEL32.dll" "";
 		strrep "ADVAPI32.dll" "";
 		strrep "WININET.dll" "";
 		strrep "WS2_32.dll" "";
@@ -1327,12 +1352,9 @@ func Beacon_Stage_Struct_p3() string {
 		strrep "This program cannot be run in DOS mode" "";
 		strrep "beacon.x64.dll" "";
 		strrep "NtQueueApcThread" "";
-		strrep "IsWow64Process" "";
 		strrep "HTTP/1.1 200 OK" "";
 		strrep "Stack memory was corrupted" "";
-		strrep "kernel32" "";
 		strrep "beacon.dll" "";
-		strrep "KERNEL32.dll" "";
 		strrep "ADVAPI32.dll" "";
 		strrep "WININET.dll" "";
 		strrep "WS2_32.dll" "";

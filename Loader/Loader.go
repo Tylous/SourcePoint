@@ -1,14 +1,15 @@
 package Loader
 
 import (
-	"SourcePoint/Struct"
-	"SourcePoint/Utils"
 	"bytes"
 	"fmt"
 	"log"
 	"strconv"
 	"strings"
 	"text/template"
+
+	"github.com/Tylous/SourcePoint/Struct"
+	"github.com/Tylous/SourcePoint/Utils"
 )
 
 type FlagOptions struct {
@@ -64,7 +65,7 @@ type Beacon_SSL struct {
 var num_Profile int
 var Post bool
 
-func GenerateOptions(stage, sleeptime, jitter, useragent, uri, customuri, beacon_PE, processinject_min_alloc, Post_EX_Process_Name, metadata, injector, ansible, Host, Profile, ProfilePath, outFile, custom_cert, cert_password, CDN, CDN_Value, datajitter, Keylogger string) {
+func GenerateOptions(stage, sleeptime, jitter, useragent, uri, customuri, beacon_PE, processinject_min_alloc, Post_EX_Process_Name, metadata, injector, ansible, Host, Profile, ProfilePath, outFile, custom_cert, cert_password, CDN, CDN_Value, datajitter, Keylogger string, Forwarder bool) {
 	Beacon_Com := &Beacon_Com{}
 	Beacon_Stage_p1 := &Beacon_Stage_p1{}
 	Beacon_Stage_p2 := &Beacon_Stage_p2{}
@@ -79,7 +80,7 @@ func GenerateOptions(stage, sleeptime, jitter, useragent, uri, customuri, beacon
 	fmt.Println("[*] Preparing Varibles...")
 	HostStageMessage, Beacon_Com.Variables = GenerateComunication(stage, sleeptime, jitter, useragent, datajitter)
 	Beacon_PostEX.Variables = GeneratePostProcessName(Post_EX_Process_Name, Keylogger)
-	Beacon_GETPOST.Variables = GenerateHTTPVaribles(Host, metadata, uri, customuri, CDN, CDN_Value, Profile)
+	Beacon_GETPOST.Variables = GenerateHTTPVaribles(Host, metadata, uri, customuri, CDN, CDN_Value, Profile, Forwarder)
 	Beacon_Stage_p2.Variables = GeneratePE(beacon_PE)
 	Process_Inject.Variables = GenerateProcessInject(processinject_min_alloc, injector)
 	Beacon_GETPOST_Profile.Variables, Beacon_SSL.Variables = GenerateProfile(Profile, CDN, CDN_Value, cert_password, custom_cert, ProfilePath, Host)
@@ -195,11 +196,16 @@ func GeneratePostProcessName(Post_EX_Process_Name, Keylogger string) map[string]
 	return Beacon_PostEX.Variables
 }
 
-func GenerateHTTPVaribles(Host, metadata, uri, customuri, CDN, CDN_Value, Profile string) map[string]string {
+func GenerateHTTPVaribles(Host, metadata, uri, customuri, CDN, CDN_Value, Profile string, Forwarder bool) map[string]string {
 	Beacon_GETPOST := &Beacon_GETPOST{}
 	Beacon_GETPOST.Variables = make(map[string]string)
 	Beacon_GETPOST.Variables["Host"] = Host
-	num_Profile, _ = strconv.Atoi(Profile)
+	if Profile == "" {
+		num_Profile, _ = strconv.Atoi(Utils.GenerateNumer(1, 5))
+	} else {
+		num_Profile, _ = strconv.Atoi(Profile)
+	}
+	fmt.Println(num_Profile)
 	if metadata == "base64" {
 		Beacon_GETPOST.Variables["metadata_mode"] = metadata
 	} else if metadata == "base64url" {
@@ -242,6 +248,12 @@ func GenerateHTTPVaribles(Host, metadata, uri, customuri, CDN, CDN_Value, Profil
 	Beacon_GETPOST.Variables["namprdnumber"] = Utils.GenerateNumer(2, 8)
 	Beacon_GETPOST.Variables["maxage"] = Utils.GenerateNumer(172800, 31536001)
 	Beacon_GETPOST.Variables["Age"] = Utils.GenerateNumer(1222, 2500)
+
+	if Forwarder == true {
+		Beacon_GETPOST.Variables["forward"] = "true"
+	} else {
+		Beacon_GETPOST.Variables["forward"] = "false"
+	}
 
 	return Beacon_GETPOST.Variables
 }
@@ -296,10 +308,10 @@ func GenerateProfile(Profile, CDN, CDN_Value, cert_password, custom_cert, Profil
 	Beacon_GETPOST_Profile.Variables = make(map[string]string)
 	Beacon_SSL.Variables = make(map[string]string)
 	if Profile == "" {
-		num_Profile, _ = strconv.Atoi(Utils.GenerateNumer(0, 4))
+		fmt.Println(num_Profile)
 		CNAME := "\rhttps-certificate {\rset CN       \"" + hostname + "\"; #Common Name"
-		Beacon_SSL.Variables["Cert"] = CNAME + Struct.Cert[num_Profile]
-		Beacon_GETPOST_Profile.Variables["Profile"] = Struct.HTTP_GET_POST_list[num_Profile]
+		Beacon_SSL.Variables["Cert"] = CNAME + Struct.Cert[num_Profile-1]
+		Beacon_GETPOST_Profile.Variables["Profile"] = Struct.HTTP_GET_POST_list[num_Profile-1]
 	}
 	if Profile != "" {
 		num_Profile, _ = strconv.Atoi(Profile)

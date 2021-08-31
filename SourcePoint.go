@@ -1,11 +1,12 @@
 package main
 
 import (
-	Loader "SourcePoint/Loader"
 	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
+
+	Loader "github.com/Tylous/SourcePoint/Loader"
 
 	"gopkg.in/yaml.v2"
 )
@@ -33,6 +34,7 @@ type FlagOptions struct {
 	CDN_Value               string
 	Datajitter              string
 	Keylogger               string
+	Forwarder               bool
 	Yaml                    string
 }
 
@@ -59,6 +61,7 @@ type conf struct {
 	Useragent            string `yaml:"Useragent"`
 	Datajitter           string `yaml:"Datajitter"`
 	Keylogger            string `yaml:"Keylogger"`
+	Forwarder            bool   `yaml:"Forwarder"`
 }
 
 func (c *conf) getConf(yamlfile string) *conf {
@@ -163,9 +166,10 @@ func options() *FlagOptions {
 	cert_password := flag.String("Password", "", "SSL certificate password")
 	CDN_Value := flag.String("CDN-Value", "", "CDN cookie value (typically used for AzureEdge profiles)")
 	CDN := flag.String("CDN", "", "CDN cookie name (typically used for AzureEdge profiles)")
+	Forwarder := flag.Bool("Forwarder", false, "Enabled the X-forwarded-For header (Good for when your C2 is behind a redirector)")
 	Yaml := flag.String("Yaml", "", "Path to the Yaml config file")
 	flag.Parse()
-	return &FlagOptions{stage: *stage, sleeptime: *sleeptime, jitter: *jitter, useragent: *useragent, uri: *uri, customuri: *customuri, beacon_PE: *beacon_PE, processinject_min_alloc: *processinject_min_alloc, Post_EX_Process_Name: *Post_EX_Process_Name, metadata: *metadata, injector: *injector, Host: *Host, Profile: *Profile, ProfilePath: *ProfilePath, outFile: *outFile, custom_cert: *custom_cert, cert_password: *cert_password, CDN: *CDN, CDN_Value: *CDN_Value, Yaml: *Yaml, Datajitter: *Datajitter, Keylogger: *Keylogger}
+	return &FlagOptions{stage: *stage, sleeptime: *sleeptime, jitter: *jitter, useragent: *useragent, uri: *uri, customuri: *customuri, beacon_PE: *beacon_PE, processinject_min_alloc: *processinject_min_alloc, Post_EX_Process_Name: *Post_EX_Process_Name, metadata: *metadata, injector: *injector, Host: *Host, Profile: *Profile, ProfilePath: *ProfilePath, outFile: *outFile, custom_cert: *custom_cert, cert_password: *cert_password, CDN: *CDN, CDN_Value: *CDN_Value, Yaml: *Yaml, Datajitter: *Datajitter, Keylogger: *Keylogger, Forwarder: *Forwarder}
 
 }
 
@@ -206,6 +210,7 @@ func main() {
 		opt.injector = c.Injector
 		opt.Datajitter = c.Datajitter
 		opt.Keylogger = c.Keylogger
+		opt.Forwarder = c.Forwarder
 	}
 	if opt.outFile == "" {
 		log.Fatal("Error: Please provide a file name to save the profile into")
@@ -214,6 +219,6 @@ func main() {
 		log.Fatal("Error: Please provide the hostname, IP or enable ansible mode")
 	}
 
-	Loader.GenerateOptions(opt.stage, opt.sleeptime, opt.jitter, opt.useragent, opt.uri, opt.customuri, opt.beacon_PE, opt.processinject_min_alloc, opt.Post_EX_Process_Name, opt.metadata, opt.injector, opt.ansible, opt.Host, opt.Profile, opt.ProfilePath, opt.outFile, opt.custom_cert, opt.cert_password, opt.CDN, opt.CDN_Value, opt.Datajitter, opt.Keylogger)
+	Loader.GenerateOptions(opt.stage, opt.sleeptime, opt.jitter, opt.useragent, opt.uri, opt.customuri, opt.beacon_PE, opt.processinject_min_alloc, opt.Post_EX_Process_Name, opt.metadata, opt.injector, opt.ansible, opt.Host, opt.Profile, opt.ProfilePath, opt.outFile, opt.custom_cert, opt.cert_password, opt.CDN, opt.CDN_Value, opt.Datajitter, opt.Keylogger, opt.Forwarder)
 
 }
