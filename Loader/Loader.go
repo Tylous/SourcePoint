@@ -205,7 +205,6 @@ func GenerateHTTPVaribles(Host, metadata, uri, customuri, CDN, CDN_Value, Profil
 	} else {
 		num_Profile, _ = strconv.Atoi(Profile)
 	}
-	fmt.Println(num_Profile)
 	if metadata == "base64" {
 		Beacon_GETPOST.Variables["metadata_mode"] = metadata
 	} else if metadata == "base64url" {
@@ -308,7 +307,6 @@ func GenerateProfile(Profile, CDN, CDN_Value, cert_password, custom_cert, Profil
 	Beacon_GETPOST_Profile.Variables = make(map[string]string)
 	Beacon_SSL.Variables = make(map[string]string)
 	if Profile == "" {
-		fmt.Println(num_Profile)
 		CNAME := "\rhttps-certificate {\rset CN       \"" + hostname + "\"; #Common Name"
 		Beacon_SSL.Variables["Cert"] = CNAME + Struct.Cert[num_Profile-1]
 		Beacon_GETPOST_Profile.Variables["Profile"] = Struct.HTTP_GET_POST_list[num_Profile-1]
