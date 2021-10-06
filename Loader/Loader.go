@@ -85,12 +85,15 @@ func GenerateOptions(stage, sleeptime, jitter, useragent, uri, customuri, beacon
 	Process_Inject.Variables = GenerateProcessInject(processinject_min_alloc, injector)
 	Beacon_GETPOST_Profile.Variables, Beacon_SSL.Variables = GenerateProfile(Profile, CDN, CDN_Value, cert_password, custom_cert, ProfilePath, Host)
 	fmt.Println("[*] Building Profile...")
-
 	Build(custom_cert, cert_password, outFile, Beacon_Com, Beacon_Stage_p1, Beacon_Stage_p2, Beacon_Stage_p3, Process_Inject, Beacon_PostEX, Beacon_GETPOST, Beacon_GETPOST_Profile, Beacon_SSL)
 	fmt.Println(HostStageMessage)
+	PE := strings.Split(Beacon_Stage_p2.Variables["pe"], `;`)
+	PE_Name := strings.Split(PE[5], `"`)
+	fmt.Println("[*] Beacon DLL Spoofed To: " + PE_Name[1])
 	PEX := strings.Split(Beacon_PostEX.Variables["Post_EX_Process_Name"], `sysnative\\`)
 	PEX_Name := PEX[1]
 	fmt.Println("[*] Post-Ex Process Name: " + PEX_Name[:(len(PEX_Name)-3)])
+	fmt.Println("[!] Beacon Shellcode Will Obfuscate Beacon in Memory Prior to Sleeping")
 	Name, _ := strconv.Atoi(Profile)
 	fmt.Println("[*] Seleted Profile: " + Struct.Profile_Names[Name])
 	fmt.Println("[+] Profile Generated: " + outFile)
@@ -248,6 +251,9 @@ func GenerateHTTPVaribles(Host, metadata, uri, customuri, CDN, CDN_Value, Profil
 	Beacon_GETPOST.Variables["maxage"] = Utils.GenerateNumer(172800, 31536001)
 	Beacon_GETPOST.Variables["Age"] = Utils.GenerateNumer(1222, 2500)
 
+	Beacon_GETPOST.Variables["UValue"] = Utils.GenerateValue(6, 15)
+	Beacon_GETPOST.Variables["CSMValue"] = Utils.GenerateValue(6, 15)
+
 	if Forwarder == true {
 		Beacon_GETPOST.Variables["forward"] = "true"
 	} else {
@@ -261,13 +267,13 @@ func GeneratePE(beacon_PE string) map[string]string {
 	Beacon_Stage_p2 := &Beacon_Stage_p2{}
 	Beacon_Stage_p2.Variables = make(map[string]string)
 	if beacon_PE == "" {
-		PE_Num, _ := strconv.Atoi(Utils.GenerateNumer(0, 25))
+		PE_Num, _ := strconv.Atoi(Utils.GenerateNumer(0, 30))
 		Beacon_Stage_p2.Variables["pe"] = Struct.Peclone_list[PE_Num]
 	}
 	if beacon_PE != "" {
 		PE_Num, _ := strconv.Atoi(beacon_PE)
-		if PE_Num >= 27 {
-			log.Fatal("Error: Please provide a valid PE number less the 26 option")
+		if PE_Num >= 30 {
+			log.Fatal("Error: Please provide a valid PE number less the 31 option")
 		}
 		Beacon_Stage_p2.Variables["pe"] = Struct.Peclone_list[(PE_Num - 1)]
 	}
@@ -330,7 +336,7 @@ func GenerateProfile(Profile, CDN, CDN_Value, cert_password, custom_cert, Profil
 			Beacon_SSL.Variables["Cert"] = Struct.Cert[4]
 			Beacon_GETPOST_Profile.Variables["Profile"] = Struct.HTTP_GET_POST_list[(num_Profile - 1)]
 
-		} else if num_Profile == 5 {
+		} else if num_Profile == 5 || num_Profile == 7 {
 			if cert_password == "" {
 				log.Fatal("Error: Please provide a Password value to use this profile")
 			}
@@ -339,7 +345,7 @@ func GenerateProfile(Profile, CDN, CDN_Value, cert_password, custom_cert, Profil
 			}
 			Beacon_SSL.Variables["Cert"] = Struct.Cert[4]
 			Beacon_GETPOST_Profile.Variables["Profile"] = Struct.HTTP_GET_POST_list[(num_Profile - 1)]
-		} else if num_Profile == 7 {
+		} else if num_Profile == 8 {
 			if cert_password == "" {
 				log.Fatal("Error: Please provide a Password value to use this profile")
 			}

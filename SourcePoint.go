@@ -79,7 +79,7 @@ func (c *conf) getConf(yamlfile string) *conf {
 }
 
 func options() *FlagOptions {
-	sleeptime := flag.String("Sleep", "", "Inital beacon sleep time")
+	sleeptime := flag.String("Sleep", "", "Initial beacon sleep time")
 	stage := flag.String("Stage", "false", "Disable host staging (Default: False)")
 	jitter := flag.String("Jitter", "", "Jitter percentage for beacon call home")
 	useragent := flag.String("Useragent", "", `UserAgent string for the beacon to use (Leave blank to randomly select one):
@@ -118,9 +118,13 @@ func options() *FlagOptions {
 [23] winsqlite3.dll
 [24] wow64.dll
 [25] wow64win.dll
-[26] WWANSVC.dll`)
+[26] WWANSVC.dll
+[27] CyMemDef64.dll (Cylance's DLL)
+[28] InProcessClient.dll (SentinelOne's DLL)
+[29] ctiuser.dll (Carbon Black's DLL)
+[30] umppc.dll (CrowdStrike's DLL)`)
 	processinject_min_alloc := flag.String("Allocation", "", "Minimum amount of memory to request for injected content (must be higher than 4096)")
-	Post_EX_Process_Name := flag.String("PostEX_Name", "", `File Post-Ex activties will spawn and inject into (Use the number):
+	Post_EX_Process_Name := flag.String("PostEX_Name", "", `File Post-Ex activities will spawn and inject into (Use the number):
 [1] WerFault.exe
 [2] WWAHost.exe
 [3] wlanext.exe
@@ -144,18 +148,19 @@ func options() *FlagOptions {
 [2] Slack
 [3] Gotomeeting
 [4] Outlook.Live
-[5] Cloudfront
-[6] AzureEdge
-[7] Custom (Used with ProfilePath)`)
+[5] Safebrowsing [Cloudfront Compatible]
+[6] AzureEdge [AzureEdge Compatible]
+[7] Field-Keyword [Cloudfront Compatible]
+[8] Custom (Used with ProfilePath)`)
 	ProfilePath := flag.String("ProfilePath", "", "Path of custom HTTP GET/POST profile...")
 	metadata := flag.String("Metadata", "base64url", `Specifies how to transform and embed metadata into the HTTP request:
 [*] base64
 [*] base64url
 [*] netbios
 [*] netbiosu`)
-	injector := flag.String("Injector", "", `Select the preferred method to allocate memory in The remote process:
+	injector := flag.String("Injector", "", `Select the preferred method to allocate memory in the remote process:
 [*] VirtualAllocEx (Great for cross architecture i.e x86 -> x64 and x64->x86)
-[*] NtMapViewOfSection (A more steathly option however fails over to VirtualAllocEx generating more events when it does)`)
+[*] NtMapViewOfSection (A more stealthly option, however fails over to VirtualAllocEx, generating more events when it does)`)
 	Keylogger := flag.String("Keylogger", "", `Select the preferred method the beacon will use to log keystrokes: 
 [*] GetAsyncKeyState (Uses GetAsyncKeyState API (Separate DLL for x86/x64 process))
 [*] SetWindowsHookEx (Uses SetWindowsHookEx API)`)
