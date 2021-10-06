@@ -75,24 +75,12 @@ func GenerateNumer(min, max int) string {
 
 }
 
-func GenerateValue(min, max int) string {
-	rand.Seed(time.Now().UnixNano())
-	num := rand.Intn(max-min) + min
-	n := num
-	b := make([]byte, n)
-	for i := range b {
-		b[i] = alpha[rand.Intn(len(alpha))]
-	}
-	return string(b)
-}
-
 func GenerateURIValues(numb int, profile_type int, Post bool, customuri string) string {
 	var uri string
 	var baseuri string
-	var enduri string
 	var num int
 	if profile_type == 1 {
-		baseuri = "/c/msdownload/update/others/2021/10/"
+		baseuri = "/c/msdownload/update/others/2019/12/"
 	}
 	if profile_type == 2 {
 		baseuri = "/messages/"
@@ -108,21 +96,12 @@ func GenerateURIValues(numb int, profile_type int, Post bool, customuri string) 
 		baseuri = "/owa/"
 	}
 	if profile_type == 5 {
-		baseuri = "/safebrowsing/" + GenerateValue(4, 10) + "/"
+		baseuri = "/safebrowsing/fp/"
 	}
 	if profile_type == 6 {
 		baseuri = "/chat/"
 	}
 	if profile_type == 7 {
-		if Post == false {
-			baseuri = "/s/"
-			enduri = "/field-keywords/"
-		} else if Post == true {
-			baseuri = "/n"
-			enduri = "/avp/amznussraps/"
-		}
-	}
-	if profile_type == 8 {
 		baseuri = "" + customuri + ""
 	}
 	uri = "set uri \""
@@ -142,12 +121,9 @@ func GenerateURIValues(numb int, profile_type int, Post bool, customuri string) 
 		if strings.HasPrefix(value, "-") {
 			ii = ii
 		} else {
-			if enduri != "" {
-				uri += baseuri + value + enduri + " "
-			} else {
-				uri += baseuri + value + " "
-			}
+			uri += baseuri + value + " "
 		}
+
 	}
 	uri += "\";\n"
 	return uri
