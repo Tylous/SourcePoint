@@ -118,7 +118,11 @@ func options() *FlagOptions {
 [23] winsqlite3.dll
 [24] wow64.dll
 [25] wow64win.dll
-[26] WWANSVC.dll`)
+[26] WWANSVC.dll
+[27] CyMemDef64.dll (Cylance's DLL)
+[28] InProcessClient.dll (SentinelOne's DLL)
+[29] ctiuser.dll (Carbon Black's DLL)
+[30] umppc.dll (CrowdStrike's DLL)`)
 	processinject_min_alloc := flag.String("Allocation", "", "Minimum amount of memory to request for injected content (must be higher than 4096)")
 	Post_EX_Process_Name := flag.String("PostEX_Name", "", `File Post-Ex activties will spawn and inject into (Use the number):
 [1] WerFault.exe
@@ -144,9 +148,10 @@ func options() *FlagOptions {
 [2] Slack
 [3] Gotomeeting
 [4] Outlook.Live
-[5] Cloudfront
-[6] AzureEdge
-[7] Custom (Used with ProfilePath)`)
+[5] Safebrowsing [Cloudfront Compatible]
+[6] AzureEdge [AzureEdge Compatible]
+[7] Field-Keyword [Cloudfront Compatible]
+[8] Custom (Used with ProfilePath)`)
 	ProfilePath := flag.String("ProfilePath", "", "Path of custom HTTP GET/POST profile...")
 	metadata := flag.String("Metadata", "base64url", `Specifies how to transform and embed metadata into the HTTP request:
 [*] base64

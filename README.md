@@ -8,6 +8,10 @@ SourcePoint is a polymorphic C2 profile generator for Cobalt Strike C2s, written
 <p align="center"> <img src=Screenshots/C2int_p1.png width="900" height="710" border="2px solid #555">
 <p align="center"> <img src=Screenshots/C2int_p2.png width="900" height="480" border="2px solid #555">
 
+```
+go install github.com/Tylous/SourcePoint
+```
+
 
 ## Installation
 ```
@@ -40,12 +44,14 @@ Usage of ./SourcePoint:
         The base URI for custom HTTP GET/POST profile (default "0")
   -Datajitter string
         Appends a value to HTTP-Get and HTTP-Post server output (default "50")
+  -Forwarder
+        Enabled the X-forwarded-For header (Good for when your C2 is behind a redirector)
   -Host string
         Team server domain name
   -Injector string
-        Select the preferred method to allocate memory in the remote process:
+        Select the preferred method to allocate memory in The remote process:
         [*] VirtualAllocEx (Great for cross architecture i.e x86 -> x64 and x64->x86)
-        [*] NtMapViewOfSection (A more stealthly option, however fails over to VirtualAllocEx, generating more events when it does)
+        [*] NtMapViewOfSection (A more steathly option however fails over to VirtualAllocEx generating more events when it does)
   -Jitter string
         Jitter percentage for beacon call home
   -Keylogger string
@@ -90,10 +96,14 @@ Usage of ./SourcePoint:
         [24] wow64.dll
         [25] wow64win.dll
         [26] WWANSVC.dll
+        [27] CyMemDef64.dll (Cylance's DLL)
+        [28] InProcessClient.dll (SentinelOne's DLL)
+        [29] ctiuser.dll (Carbon Black's DLL)
+        [30] umppc.dll (CrowdStrike's DLL)
   -Password string
         SSL certificate password
   -PostEX_Name string
-        File Post-Ex activities will spawn and inject into (Use the number):
+        File Post-Ex activties will spawn and inject into (Use the number):
         [1] WerFault.exe
         [2] WWAHost.exe
         [3] wlanext.exe
@@ -118,15 +128,16 @@ Usage of ./SourcePoint:
         [2] Slack
         [3] Gotomeeting
         [4] Outlook.Live
-        [5] Cloudfront
-        [6] AzureEdge
-        [7] Custom (Used with ProfilePath)
+        [5] Safebrowsing [Cloudfront Compatible]
+        [6] AzureEdge [AzureEdge Compatible]
+        [7] Field-Keyword [Cloudfront Compatible]
+        [8] Custom (Used with ProfilePath)
   -ProfilePath string
         Path of custom HTTP GET/POST profile...
   -Sleep string
-        Initial beacon sleep time
+        Inital beacon sleep time
   -Stage string
-        Disable host staging (Default: False) (default "False")
+        Disable host staging (Default: False) (default "false")
   -Uri string
         The number URIs a profile for beacons to choose from
   -Useragent string
@@ -205,7 +216,7 @@ Currently SourcePoint provides you with 6 baked in options for HTTP/HTTPS traffi
 * Gotomeeting's Active Meeting Communication 
 * Microsoft Outlook's Email Communication
 
-2 of the profile options (5 and 6) are designed specifically for:
+2 of the profile options (5, 6 and 7) are designed specifically for:
 * Cloudfront.net
 * AzureEdge.net
 
@@ -243,6 +254,7 @@ Customuri:
 CDN:
 CDN_Value: 
 ProfilePath: 
+Forwarder: False
 ```
 
 

