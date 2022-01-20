@@ -104,7 +104,7 @@ func GenerateComunication(stage, sleeptime, jitter, useragent, datajitter string
 	Beacon_Com := &Beacon_Com{}
 	Beacon_Com.Variables = make(map[string]string)
 	var HostStageMessage string
-	if stage == "False" {
+	if stage == "False" || stage == "false" {
 		Beacon_Com.Variables["stage"] = "false"
 		HostStageMessage = "[!] Host Staging Is Disabled - Staged Payloads Are Not Available But Your Beacon Payload Is Not Available To Anyone That Connects"
 	} else {

@@ -134,7 +134,7 @@ func GenerateURIValues(numb int, profile_type int, Post bool, customuri string) 
 		if profile_type == 1 {
 			num = rand.Intn(30-14) + 14
 		} else {
-			num = rand.Intn(46-20) + 20
+			num = rand.Intn(30-14) + 20
 		}
 		n := num
 		b := make([]byte, n)
