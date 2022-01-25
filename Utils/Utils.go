@@ -123,7 +123,7 @@ func GenerateURIValues(numb int, profile_type int, Post bool, customuri string) 
 		}
 	}
 	if profile_type == 8 {
-		baseuri = "//"
+		baseuri = "" + customuri + ""
 	}
 	if profile_type == 9 {
 		baseuri = "" + customuri + ""

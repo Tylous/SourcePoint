@@ -215,17 +215,17 @@ Currently SourcePoint provides you with 6 baked in options for HTTP/HTTPS traffi
 * Gotomeeting's Active Meeting Communication 
 * Microsoft Outlook's Email Communication
 
-2 of the profile options (5, 6 and 7) are designed specifically for:
+3 of the profile options (5, 6 and 7) are designed specifically for:
 * Cloudfront.net
 * AzureEdge.net
 
-The last option (7) is designed to input a custom profile. This option is designed to allow an operator to utilize a completely custom traffic profile. There are many cases where a completely unique traffic profile will yield high success rather than one of these. This also allows operators to still utilize SourcePoint's malleability features with their go-to or favorite traffic profile. As this allows for unique profiles it’s important to ensure you tweak and adjust the profile for SourcePoint to work. At a minimum:
+The last option (8) is designed to input a custom profile. This option is designed to allow an operator to utilize a completely custom traffic profile. There are many cases where a completely unique traffic profile will yield high success rather than one of these. This also allows operators to still utilize SourcePoint's malleability features with their go-to or favorite traffic profile. As this allows for unique profiles it’s important to ensure you tweak and adjust the profile for SourcePoint to work. At a minimum:
 * Replace - `header "Host" "acme.com";` with `header "Host" "{{.Variables.Host}}";`
 * Replace - `/pathtolegitpage/` under the GET field with `{{.Variables.HTTP_GET_URI}}`
 * Replace - `/pathtolegitpage/` under the POST field with `{{.Variables.HTTP_POST_URI}}`
 
 
-To do so, use the following options `-CustomURI` and `-ProfilePath` along with `-Profile 7`. While developing a profile, it’s highly recommended to use the native ./c2lint to verify everything is working. 
+To do so, use the following options `-CustomURI` and `-ProfilePath` along with `-Profile 8`. While developing a profile, it’s highly recommended to use the native ./c2lint to verify everything is working. 
 
 
 ## Sample Yaml Configs
