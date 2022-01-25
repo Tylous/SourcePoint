@@ -385,8 +385,8 @@ func GenerateProfile(Profile, CDN, CDN_Value, cert_password, custom_cert, Profil
 			}
 			if cert_password != "" && custom_cert != "" {
 				Beacon_SSL.Variables["Cert"] = Struct.Cert[4]
-				Beacon_GETPOST_Profile.Variables["Profile"] = Utils.Readfile(ProfilePath)
 			}
+			Beacon_GETPOST_Profile.Variables["Profile"] = Utils.Readfile(ProfilePath)
 		} else {
 			log.Fatal("Error: Please provide a Profile number of 8 or less")
 		}
