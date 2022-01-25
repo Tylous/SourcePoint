@@ -349,6 +349,7 @@ func GenerateProfile(Profile, CDN, CDN_Value, cert_password, custom_cert, Profil
 			CNAME := "\rhttps-certificate {\rset CN       \"" + hostname + "\"; #Common Name"
 			Beacon_SSL.Variables["Cert"] = CNAME + Struct.Cert[num_Profile-1]
 			Beacon_GETPOST_Profile.Variables["Profile"] = Struct.HTTP_GET_POST_list[(num_Profile - 1)]
+			fmt.Println("[!] Self Signed SSL Cerificate Used")
 		} else if num_Profile == 6 {
 			if CDN == "" {
 				log.Fatal("Error: Please provide a CDN value in order to use AzureEdge profiles")
@@ -361,7 +362,6 @@ func GenerateProfile(Profile, CDN, CDN_Value, cert_password, custom_cert, Profil
 			}
 			Beacon_SSL.Variables["Cert"] = Struct.Cert[4]
 			Beacon_GETPOST_Profile.Variables["Profile"] = Struct.HTTP_GET_POST_list[(num_Profile - 1)]
-
 		} else if num_Profile == 5 || num_Profile == 7 {
 			if cert_password == "" {
 				log.Fatal("Error: Please provide a Password value to use this profile")
@@ -372,16 +372,23 @@ func GenerateProfile(Profile, CDN, CDN_Value, cert_password, custom_cert, Profil
 			Beacon_SSL.Variables["Cert"] = Struct.Cert[4]
 			Beacon_GETPOST_Profile.Variables["Profile"] = Struct.HTTP_GET_POST_list[(num_Profile - 1)]
 		} else if num_Profile == 8 {
-			if cert_password == "" {
+			if cert_password == "" && custom_cert == "" {
+				CNAME := "\rhttps-certificate {\rset CN       \"" + hostname + "\"; #Common Name"
+				Beacon_SSL.Variables["Cert"] = CNAME + Struct.Cert[0]
+				fmt.Println("[!] Self Signed SSL Cerificate Used")
+			}
+			if cert_password == "" && custom_cert != "" {
 				log.Fatal("Error: Please provide a Password value to use this profile")
 			}
-			if custom_cert == "" {
+			if custom_cert == "" && cert_password != "" {
 				log.Fatal("Error: Please provide a Keystore value to use this profile")
 			}
-			Beacon_SSL.Variables["Cert"] = Struct.Cert[4]
-			Beacon_GETPOST_Profile.Variables["Profile"] = Utils.Readfile(ProfilePath)
+			if cert_password != "" && custom_cert != "" {
+				Beacon_SSL.Variables["Cert"] = Struct.Cert[4]
+				Beacon_GETPOST_Profile.Variables["Profile"] = Utils.Readfile(ProfilePath)
+			}
 		} else {
-			log.Fatal("Error: Please provide a Profile number less the 7 option")
+			log.Fatal("Error: Please provide a Profile number of 8 or less")
 		}
 	}
 	if custom_cert != "" && cert_password != "" {
