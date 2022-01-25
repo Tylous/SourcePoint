@@ -65,7 +65,7 @@ type Beacon_SSL struct {
 var num_Profile int
 var Post bool
 
-func GenerateOptions(stage, sleeptime, jitter, useragent, uri, customuri, beacon_PE, processinject_min_alloc, Post_EX_Process_Name, metadata, injector, ansible, Host, Profile, ProfilePath, outFile, custom_cert, cert_password, CDN, CDN_Value, datajitter, Keylogger string, Forwarder bool) {
+func GenerateOptions(stage, sleeptime, jitter, useragent, uri, customuri, customuriGET, customuriPOST, beacon_PE, processinject_min_alloc, Post_EX_Process_Name, metadata, injector, ansible, Host, Profile, ProfilePath, outFile, custom_cert, cert_password, CDN, CDN_Value, datajitter, Keylogger string, Forwarder bool) {
 	Beacon_Com := &Beacon_Com{}
 	Beacon_Stage_p1 := &Beacon_Stage_p1{}
 	Beacon_Stage_p2 := &Beacon_Stage_p2{}
@@ -80,7 +80,7 @@ func GenerateOptions(stage, sleeptime, jitter, useragent, uri, customuri, beacon
 	fmt.Println("[*] Preparing Varibles...")
 	HostStageMessage, Beacon_Com.Variables = GenerateComunication(stage, sleeptime, jitter, useragent, datajitter)
 	Beacon_PostEX.Variables = GeneratePostProcessName(Post_EX_Process_Name, Keylogger)
-	Beacon_GETPOST.Variables = GenerateHTTPVaribles(Host, metadata, uri, customuri, CDN, CDN_Value, Profile, Forwarder)
+	Beacon_GETPOST.Variables = GenerateHTTPVaribles(Host, metadata, uri, customuri, customuriGET, customuriPOST, CDN, CDN_Value, Profile, Forwarder)
 	Beacon_Stage_p2.Variables = GeneratePE(beacon_PE)
 	Process_Inject.Variables = GenerateProcessInject(processinject_min_alloc, injector)
 	Beacon_GETPOST_Profile.Variables, Beacon_SSL.Variables = GenerateProfile(Profile, CDN, CDN_Value, cert_password, custom_cert, ProfilePath, Host)
@@ -199,7 +199,7 @@ func GeneratePostProcessName(Post_EX_Process_Name, Keylogger string) map[string]
 	return Beacon_PostEX.Variables
 }
 
-func GenerateHTTPVaribles(Host, metadata, uri, customuri, CDN, CDN_Value, Profile string, Forwarder bool) map[string]string {
+func GenerateHTTPVaribles(Host, metadata, uri, customuri, customuriGET, customuriPOST, CDN, CDN_Value, Profile string, Forwarder bool) map[string]string {
 	Beacon_GETPOST := &Beacon_GETPOST{}
 	Beacon_GETPOST.Variables = make(map[string]string)
 	Beacon_GETPOST.Variables["Host"] = Host
@@ -221,11 +221,29 @@ func GenerateHTTPVaribles(Host, metadata, uri, customuri, CDN, CDN_Value, Profil
 	} else {
 		log.Fatal("Error: Please provide a valid metadata option")
 	}
+	if customuri != "0" {
+		if customuriGET != "0" || customuriPOST != "0" {
+			log.Fatal("Error: Using customuri with either of customuriGET or customuriPOST is not supported")
+		}
+	}
+	if (customuriGET != "0" && customuriPOST == "0") || (customuriGET == "0" && customuriPOST != "0") {
+		log.Fatal("Error: When using CustomuriGET/CustomuriPOST, both must be sepecified")
+	}
 	if uri == "" {
 		Post = false
 		uri := customuri
+		if customuriGET != "0" && customuriPOST != "0" {
+			uri = customuriGET
+			fmt.Println("[*] GET URI base: " + uri)
+		}
+
 		Beacon_GETPOST.Variables["HTTP_GET_URI"] = Utils.GenerateURIValues(1, num_Profile, Post, uri)
 		Post = true
+		if customuriGET != "0" && customuriPOST != "0" {
+			uri = customuriPOST
+			fmt.Println("[*] POST URI base: " + uri)
+		}
+
 		Beacon_GETPOST.Variables["HTTP_POST_URI"] = Utils.GenerateURIValues(1, num_Profile, Post, uri)
 
 	}
@@ -233,8 +251,16 @@ func GenerateHTTPVaribles(Host, metadata, uri, customuri, CDN, CDN_Value, Profil
 		num_uri, _ := strconv.Atoi(uri)
 		Post = false
 		uri := customuri
+		if customuriGET != "0" && customuriPOST != "0" {
+			uri = customuriGET
+			fmt.Println("[*] GET URI base: " + uri)
+		}
 		Beacon_GETPOST.Variables["HTTP_GET_URI"] = Utils.GenerateURIValues(num_uri, num_Profile, Post, uri)
 		Post = true
+		if customuriGET != "0" && customuriPOST != "0" {
+			uri = customuriPOST
+			fmt.Println("[*] POST URI base: " + uri)
+		}
 		Beacon_GETPOST.Variables["HTTP_POST_URI"] = Utils.GenerateURIValues(num_uri, num_Profile, Post, uri)
 	}
 	if CDN != "" {

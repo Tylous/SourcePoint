@@ -18,6 +18,8 @@ type FlagOptions struct {
 	useragent               string
 	uri                     string
 	customuri               string
+	customuriGET            string
+	customuriPOST           string
 	beacon_PE               string
 	processinject_min_alloc string
 	Post_EX_Process_Name    string
@@ -56,6 +58,8 @@ type conf struct {
 	Sleep                string `yaml:"Sleep"`
 	Uri                  string `yaml:"Uri"`
 	Customuri            string `yaml:"Customuri"`
+	CustomuriGET         string `yaml:"CustomuriGET"`
+	CustomuriPOST        string `yaml:"CustomuriPOST"`
 	CDN                  string `yaml:"CDN"`
 	CDN_Value            string `yaml:"CDN_Value"`
 	Useragent            string `yaml:"Useragent"`
@@ -91,7 +95,9 @@ func options() *FlagOptions {
 [*] Linux
 [*] Mac`)
 	uri := flag.String("Uri", "", "The number URIs a profile for beacons to choose from")
-	customuri := flag.String("Customuri", "0", "The base URI for custom HTTP GET/POST profile")
+	customuri := flag.String("Customuri", "0", "The base URI for custom HTTP GET/POST profile - Cannot be used with CustomuriGET or CustomuriPOST")
+	customuriGET := flag.String("CustomuriGET", "0", "The base URI for custom HTTP GET profile - Must be used with CustomuriPOST")
+	customuriPOST := flag.String("CustomuriPOST", "0", "The base URI for custom HTTP POST profile - Must be used with CustomuriGET")
 	beacon_PE := flag.String("PE_Clone", "", `PE file beacon will mimic (Use the number):
 [1] srv.dll
 [2] ActivationManager.dll
@@ -174,7 +180,7 @@ func options() *FlagOptions {
 	Forwarder := flag.Bool("Forwarder", false, "Enabled the X-forwarded-For header (Good for when your C2 is behind a redirector)")
 	Yaml := flag.String("Yaml", "", "Path to the Yaml config file")
 	flag.Parse()
-	return &FlagOptions{stage: *stage, sleeptime: *sleeptime, jitter: *jitter, useragent: *useragent, uri: *uri, customuri: *customuri, beacon_PE: *beacon_PE, processinject_min_alloc: *processinject_min_alloc, Post_EX_Process_Name: *Post_EX_Process_Name, metadata: *metadata, injector: *injector, Host: *Host, Profile: *Profile, ProfilePath: *ProfilePath, outFile: *outFile, custom_cert: *custom_cert, cert_password: *cert_password, CDN: *CDN, CDN_Value: *CDN_Value, Yaml: *Yaml, Datajitter: *Datajitter, Keylogger: *Keylogger, Forwarder: *Forwarder}
+	return &FlagOptions{stage: *stage, sleeptime: *sleeptime, jitter: *jitter, useragent: *useragent, uri: *uri, customuri: *customuri, customuriGET: *customuriGET, customuriPOST: *customuriPOST, beacon_PE: *beacon_PE, processinject_min_alloc: *processinject_min_alloc, Post_EX_Process_Name: *Post_EX_Process_Name, metadata: *metadata, injector: *injector, Host: *Host, Profile: *Profile, ProfilePath: *ProfilePath, outFile: *outFile, custom_cert: *custom_cert, cert_password: *cert_password, CDN: *CDN, CDN_Value: *CDN_Value, Yaml: *Yaml, Datajitter: *Datajitter, Keylogger: *Keylogger, Forwarder: *Forwarder}
 
 }
 
@@ -209,6 +215,8 @@ func main() {
 		opt.sleeptime = c.Sleep
 		opt.uri = c.Uri
 		opt.customuri = c.Customuri
+		opt.customuri = c.CustomuriGET
+		opt.customuri = c.CustomuriPOST
 		opt.CDN = c.CDN
 		opt.useragent = c.Useragent
 		opt.ProfilePath = c.ProfilePath
@@ -224,6 +232,6 @@ func main() {
 		log.Fatal("Error: Please provide the hostname, IP or enable ansible mode")
 	}
 
-	Loader.GenerateOptions(opt.stage, opt.sleeptime, opt.jitter, opt.useragent, opt.uri, opt.customuri, opt.beacon_PE, opt.processinject_min_alloc, opt.Post_EX_Process_Name, opt.metadata, opt.injector, opt.ansible, opt.Host, opt.Profile, opt.ProfilePath, opt.outFile, opt.custom_cert, opt.cert_password, opt.CDN, opt.CDN_Value, opt.Datajitter, opt.Keylogger, opt.Forwarder)
+	Loader.GenerateOptions(opt.stage, opt.sleeptime, opt.jitter, opt.useragent, opt.uri, opt.customuri, opt.customuriGET, opt.customuriPOST, opt.beacon_PE, opt.processinject_min_alloc, opt.Post_EX_Process_Name, opt.metadata, opt.injector, opt.ansible, opt.Host, opt.Profile, opt.ProfilePath, opt.outFile, opt.custom_cert, opt.cert_password, opt.CDN, opt.CDN_Value, opt.Datajitter, opt.Keylogger, opt.Forwarder)
 
 }
