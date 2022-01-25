@@ -40,7 +40,11 @@ Usage of ./SourcePoint:
   -CDN-Value string
         CDN cookie value (typically used for AzureEdge profiles)
   -Customuri string
-        The base URI for custom HTTP GET/POST profile (default "0")
+        The base URI for custom HTTP GET/POST profile (default "0") - Cannot be used with CustomuriGET or CustomuriPOST
+  -CustomuriGET string
+        The base URI for custom HTTP GET profile (default "0") - Must be used with CustomuriPOST
+  -CustomuriPOST string
+        The base URI for custom HTTP POST profile (default "0") - Must be used with CustomuriGET
   -Datajitter string
         Appends a value to HTTP-Get and HTTP-Post server output (default "50")
   -Forwarder
@@ -209,7 +213,7 @@ This part of your profile controls how the beacon handles post-exploitation modu
 
 
 ### Profiles
-Currently SourcePoint provides you with 6 baked in options for HTTP/HTTPS traffic profiles, based on existing profiles. Of these 6, 4 of them are influenced by and based on:
+Currently SourcePoint provides you with 7 baked in options for HTTP/HTTPS traffic profiles, based on existing profiles. Of these 6, 4 of them are influenced by and based on:
 * Microsoft Window's Update Communication
 * Slack's Message Communication
 * Gotomeeting's Active Meeting Communication 
@@ -225,7 +229,7 @@ The last option (8) is designed to input a custom profile. This option is design
 * Replace - `/pathtolegitpage/` under the POST field with `{{.Variables.HTTP_POST_URI}}`
 
 
-To do so, use the following options `-CustomURI` and `-ProfilePath` along with `-Profile 8`. While developing a profile, it’s highly recommended to use the native ./c2lint to verify everything is working. 
+To do so, use the following options `-Customuri` and `-ProfilePath` along with `-Profile 8`. To use a different URI base for GET and POST, `-CustomuriGET` and  `-CustomuriPOST` should be used in place of `-Customuri`. While developing a profile, it’s highly recommended to use the native ./c2lint to verify everything is working. 
 
 
 ## Sample Yaml Configs
