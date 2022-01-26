@@ -166,7 +166,7 @@ func GenerateComunication(stage, sleeptime, jitter, useragent, datajitter string
 			num_agent, _ := strconv.Atoi(Utils.GenerateNumer(51, 65))
 			Beacon_Com.Variables["useragent"] = Struct.Useragent_list[num_agent]
 		} else {
-			log.Fatal("Error: Please provide a Useragent option")
+			Beacon_Com.Variables["useragent"] = useragent
 		}
 	}
 	if useragent == "" {

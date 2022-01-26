@@ -152,6 +152,7 @@ Usage of ./SourcePoint:
         [*] Win6.3
         [*] Linux
         [*] Mac
+        [*] Custom - Whatever string you specify will be used as the user agent
   -Yaml string
         Path to the Yaml config file
 ```
