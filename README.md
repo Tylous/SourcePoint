@@ -40,7 +40,11 @@ Usage of ./SourcePoint:
   -CDN-Value string
         CDN cookie value (typically used for AzureEdge profiles)
   -Customuri string
-        The base URI for custom HTTP GET/POST profile (default "0")
+        The base URI for custom HTTP GET/POST profile (default "0") - Cannot be used with CustomuriGET or CustomuriPOST
+  -CustomuriGET string
+        The base URI for custom HTTP GET profile (default "0") - Must be used with CustomuriPOST
+  -CustomuriPOST string
+        The base URI for custom HTTP POST profile (default "0") - Must be used with CustomuriGET
   -Datajitter string
         Appends a value to HTTP-Get and HTTP-Post server output (default "50")
   -Forwarder
@@ -148,6 +152,7 @@ Usage of ./SourcePoint:
         [*] Win6.3
         [*] Linux
         [*] Mac
+        [*] Custom - Whatever string you specify will be used as the user agent
   -Yaml string
         Path to the Yaml config file
 ```
@@ -209,23 +214,23 @@ This part of your profile controls how the beacon handles post-exploitation modu
 
 
 ### Profiles
-Currently SourcePoint provides you with 6 baked in options for HTTP/HTTPS traffic profiles, based on existing profiles. Of these 6, 4 of them are influenced by and based on:
+Currently SourcePoint provides you with 7 baked in options for HTTP/HTTPS traffic profiles, based on existing profiles. Of these 6, 4 of them are influenced by and based on:
 * Microsoft Window's Update Communication
 * Slack's Message Communication
 * Gotomeeting's Active Meeting Communication 
 * Microsoft Outlook's Email Communication
 
-2 of the profile options (5, 6 and 7) are designed specifically for:
+3 of the profile options (5, 6 and 7) are designed specifically for:
 * Cloudfront.net
 * AzureEdge.net
 
-The last option (7) is designed to input a custom profile. This option is designed to allow an operator to utilize a completely custom traffic profile. There are many cases where a completely unique traffic profile will yield high success rather than one of these. This also allows operators to still utilize SourcePoint's malleability features with their go-to or favorite traffic profile. As this allows for unique profiles it’s important to ensure you tweak and adjust the profile for SourcePoint to work. At a minimum:
+The last option (8) is designed to input a custom profile. This option is designed to allow an operator to utilize a completely custom traffic profile. There are many cases where a completely unique traffic profile will yield high success rather than one of these. This also allows operators to still utilize SourcePoint's malleability features with their go-to or favorite traffic profile. As this allows for unique profiles it’s important to ensure you tweak and adjust the profile for SourcePoint to work. At a minimum:
 * Replace - `header "Host" "acme.com";` with `header "Host" "{{.Variables.Host}}";`
 * Replace - `/pathtolegitpage/` under the GET field with `{{.Variables.HTTP_GET_URI}}`
 * Replace - `/pathtolegitpage/` under the POST field with `{{.Variables.HTTP_POST_URI}}`
 
 
-To do so, use the following options `-CustomURI` and `-ProfilePath` along with `-Profile 7`. While developing a profile, it’s highly recommended to use the native ./c2lint to verify everything is working. 
+To do so, use the following options `-Customuri` and `-ProfilePath` along with `-Profile 8`. To use a different URI base for GET and POST, `-CustomuriGET` and  `-CustomuriPOST` should be used in place of `-Customuri`. While developing a profile, it’s highly recommended to use the native ./c2lint to verify everything is working. 
 
 
 ## Sample Yaml Configs
