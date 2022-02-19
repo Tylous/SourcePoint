@@ -23,7 +23,6 @@ type FlagOptions struct {
 	Post_EX_Process_Name    string
 	metadata                string
 	injector                string
-	ansible                 string
 	Host                    string
 	outFile                 string
 	Profile                 string
@@ -65,7 +64,7 @@ type Beacon_SSL struct {
 var num_Profile int
 var Post bool
 
-func GenerateOptions(stage, sleeptime, jitter, useragent, uri, customuri, customuriGET, customuriPOST, beacon_PE, processinject_min_alloc, Post_EX_Process_Name, metadata, injector, ansible, Host, Profile, ProfilePath, outFile, custom_cert, cert_password, CDN, CDN_Value, datajitter, Keylogger string, Forwarder bool) {
+func GenerateOptions(stage, sleeptime, jitter, useragent, uri, customuri, customuriGET, customuriPOST, beacon_PE, processinject_min_alloc, Post_EX_Process_Name, metadata, injector, Host, Profile, ProfilePath, outFile, custom_cert, cert_password, CDN, CDN_Value, datajitter, Keylogger string, Forwarder bool) {
 	Beacon_Com := &Beacon_Com{}
 	Beacon_Stage_p1 := &Beacon_Stage_p1{}
 	Beacon_Stage_p2 := &Beacon_Stage_p2{}
@@ -221,25 +220,17 @@ func GenerateHTTPVaribles(Host, metadata, uri, customuri, customuriGET, customur
 	} else {
 		log.Fatal("Error: Please provide a valid metadata option")
 	}
-	if customuri != "0" {
-		if customuriGET != "0" || customuriPOST != "0" {
-			log.Fatal("Error: Using customuri with either of customuriGET or customuriPOST is not supported")
-		}
-	}
-	if (customuriGET != "0" && customuriPOST == "0") || (customuriGET == "0" && customuriPOST != "0") {
-		log.Fatal("Error: When using CustomuriGET/CustomuriPOST, both must be sepecified")
-	}
 	if uri == "" {
 		Post = false
 		uri := customuri
-		if customuriGET != "0" && customuriPOST != "0" {
+		if customuriGET != "" && customuriPOST != "" {
 			uri = customuriGET
 			fmt.Println("[*] GET URI base: " + uri)
 		}
 
 		Beacon_GETPOST.Variables["HTTP_GET_URI"] = Utils.GenerateURIValues(1, num_Profile, Post, uri)
 		Post = true
-		if customuriGET != "0" && customuriPOST != "0" {
+		if customuriGET != "" && customuriPOST != "" {
 			uri = customuriPOST
 			fmt.Println("[*] POST URI base: " + uri)
 		}
@@ -251,13 +242,13 @@ func GenerateHTTPVaribles(Host, metadata, uri, customuri, customuriGET, customur
 		num_uri, _ := strconv.Atoi(uri)
 		Post = false
 		uri := customuri
-		if customuriGET != "0" && customuriPOST != "0" {
+		if customuriGET != "" && customuriPOST != "" {
 			uri = customuriGET
 			fmt.Println("[*] GET URI base: " + uri)
 		}
 		Beacon_GETPOST.Variables["HTTP_GET_URI"] = Utils.GenerateURIValues(num_uri, num_Profile, Post, uri)
 		Post = true
-		if customuriGET != "0" && customuriPOST != "0" {
+		if customuriGET != "" && customuriPOST != "" {
 			uri = customuriPOST
 			fmt.Println("[*] POST URI base: " + uri)
 		}
@@ -270,8 +261,8 @@ func GenerateHTTPVaribles(Host, metadata, uri, customuri, customuriGET, customur
 		Beacon_GETPOST.Variables["CDN"] = ""
 	}
 
-	Beacon_GETPOST.Variables["number64"] = Utils.GenerateNumer(19340, 15360000)
-	Beacon_GETPOST.Variables["number86"] = Utils.GenerateNumer(19340, 15360000)
+	Beacon_GETPOST.Variables["number64"] = Utils.GenerateNumer(19340, 15370000)
+	Beacon_GETPOST.Variables["number86"] = Utils.GenerateNumer(19340, 15370000)
 
 	Beacon_GETPOST.Variables["namprdnumber"] = Utils.GenerateNumer(2, 8)
 	Beacon_GETPOST.Variables["maxage"] = Utils.GenerateNumer(172800, 31536001)

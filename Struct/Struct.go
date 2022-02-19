@@ -57,8 +57,8 @@ var Post_EX_Process_Name = []string{`
 	set spawnto_x86 "%windir%\\syswow64\\mtstocom.exe";
 	set spawnto_x64 "%windir%\\sysnative\\mtstocom.exe";
 `, `
-	set spawnto_x86 "%windir%\\syswow64\pcaui.exe";
-	set spawnto_x64 "%windir%\\sysnative\pcaui.exe";
+	set spawnto_x86 "%windir%\\syswow64\\pcaui.exe";
+	set spawnto_x64 "%windir%\\sysnative\\pcaui.exe";
 `, `
 	set spawnto_x86 "%windir%\\syswow64\\powercfg.exe";
 	set spawnto_x64 "%windir%\\sysnative\\powercfg.exe";

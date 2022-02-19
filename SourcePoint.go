@@ -25,7 +25,6 @@ type FlagOptions struct {
 	Post_EX_Process_Name    string
 	metadata                string
 	injector                string
-	ansible                 string
 	Host                    string
 	outFile                 string
 	Profile                 string
@@ -95,9 +94,9 @@ func options() *FlagOptions {
 [*] Linux
 [*] Mac`)
 	uri := flag.String("Uri", "", "The number URIs a profile for beacons to choose from")
-	customuri := flag.String("Customuri", "0", "The base URI for custom HTTP GET/POST profile - Cannot be used with CustomuriGET or CustomuriPOST")
-	customuriGET := flag.String("CustomuriGET", "0", "The base URI for custom HTTP GET profile - Must be used with CustomuriPOST")
-	customuriPOST := flag.String("CustomuriPOST", "0", "The base URI for custom HTTP POST profile - Must be used with CustomuriGET")
+	customuri := flag.String("Customuri", "", "The base URI for custom HTTP GET/POST profile - Cannot be used with CustomuriGET or CustomuriPOST")
+	customuriGET := flag.String("CustomuriGET", "", "The base URI for custom HTTP GET profile - Must be used with CustomuriPOST")
+	customuriPOST := flag.String("CustomuriPOST", "", "The base URI for custom HTTP POST profile - Must be used with CustomuriGET")
 	beacon_PE := flag.String("PE_Clone", "", `PE file beacon will mimic (Use the number):
 [1] srv.dll
 [2] ActivationManager.dll
@@ -215,8 +214,8 @@ func main() {
 		opt.sleeptime = c.Sleep
 		opt.uri = c.Uri
 		opt.customuri = c.Customuri
-		opt.customuri = c.CustomuriGET
-		opt.customuri = c.CustomuriPOST
+		opt.customuriGET = c.CustomuriGET
+		opt.customuriPOST = c.CustomuriPOST
 		opt.CDN = c.CDN
 		opt.useragent = c.Useragent
 		opt.ProfilePath = c.ProfilePath
@@ -229,9 +228,14 @@ func main() {
 		log.Fatal("Error: Please provide a file name to save the profile into")
 	}
 	if opt.Host == "" {
-		log.Fatal("Error: Please provide the hostname, IP or enable ansible mode")
+		log.Fatal("Error: Please provide the hostname or IP")
+	}
+	if opt.customuri != "" && (opt.customuriGET != "" || opt.customuriPOST != "") {
+		log.Fatal("Error: Using Customuri with either of CustomuriGET or CustomuriPOST is not supported")
+	}
+	if (opt.customuriGET != "" && opt.customuriPOST == "") || (opt.customuriGET == "" && opt.customuriPOST != "") {
+		log.Fatal("Error: When using CustomuriGET/CustomuriPOST, both must be sepecified")
 	}
 
-	Loader.GenerateOptions(opt.stage, opt.sleeptime, opt.jitter, opt.useragent, opt.uri, opt.customuri, opt.customuriGET, opt.customuriPOST, opt.beacon_PE, opt.processinject_min_alloc, opt.Post_EX_Process_Name, opt.metadata, opt.injector, opt.ansible, opt.Host, opt.Profile, opt.ProfilePath, opt.outFile, opt.custom_cert, opt.cert_password, opt.CDN, opt.CDN_Value, opt.Datajitter, opt.Keylogger, opt.Forwarder)
-
+	Loader.GenerateOptions(opt.stage, opt.sleeptime, opt.jitter, opt.useragent, opt.uri, opt.customuri, opt.customuriGET, opt.customuriPOST, opt.beacon_PE, opt.processinject_min_alloc, opt.Post_EX_Process_Name, opt.metadata, opt.injector, opt.Host, opt.Profile, opt.ProfilePath, opt.outFile, opt.custom_cert, opt.cert_password, opt.CDN, opt.CDN_Value, opt.Datajitter, opt.Keylogger, opt.Forwarder)
 }

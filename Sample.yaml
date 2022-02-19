@@ -20,4 +20,7 @@ Customuri:
 CDN:
 CDN_Value: 
 ProfilePath:
+Customuri: 
+CustomuriGET: 
+CustomuriPOST:
 Forwarder: False
