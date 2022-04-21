@@ -12,59 +12,65 @@ import (
 )
 
 type FlagOptions struct {
-	stage                   string
-	sleeptime               string
-	jitter                  string
-	useragent               string
-	uri                     string
-	customuri               string
-	customuriGET            string
-	customuriPOST           string
-	beacon_PE               string
-	processinject_min_alloc string
-	Post_EX_Process_Name    string
-	metadata                string
-	injector                string
-	Host                    string
-	outFile                 string
-	Profile                 string
-	ProfilePath             string
-	cert_password           string
-	custom_cert             string
-	CDN                     string
-	CDN_Value               string
-	Datajitter              string
-	Keylogger               string
-	Forwarder               bool
-	Yaml                    string
+	stage                     string
+	sleeptime                 string
+	jitter                    string
+	useragent                 string
+	uri                       string
+	customuri                 string
+	customuriGET              string
+	customuriPOST             string
+	beacon_PE                 string
+	processinject_min_alloc   string
+	Post_EX_Process_Name      string
+	metadata                  string
+	injector                  string
+	Host                      string
+	outFile                   string
+	Profile                   string
+	ProfilePath               string
+	cert_password             string
+	custom_cert               string
+	CDN                       string
+	CDN_Value                 string
+	Datajitter                string
+	Keylogger                 string
+	Forwarder                 bool
+	Yaml                      string
+  tasks_max_size            string
+  tasks_proxy_max_size      string
+  tasks_dns_proxy_max_size  string
 }
 
 type conf struct {
-	Host                 string `yaml:"Host"`
-	Stage                string `yaml:"Stage"`
-	Keystore             string `yaml:"Keystore"`
-	Password             string `yaml:"Password"`
-	Metadata             string `yaml:"Metadata"`
-	Injector             string `yaml:"Injector"`
-	Outfile              string `yaml:"Outfile"`
-	PE_Clone             string `yaml:"PE_Clone"`
-	Profile              string `yaml:"Profile"`
-	Post_EX_Process_Name string `yaml:"Post-EX Processname"`
-	ProfilePath          string `yaml:"ProfilePath"`
-	Allocation           string `yaml:"allocation"`
-	Jitter               string `yaml:"Jitter"`
-	Debug                bool   `yaml:"Debug"`
-	Sleep                string `yaml:"Sleep"`
-	Uri                  string `yaml:"Uri"`
-	Customuri            string `yaml:"Customuri"`
-	CustomuriGET         string `yaml:"CustomuriGET"`
-	CustomuriPOST        string `yaml:"CustomuriPOST"`
-	CDN                  string `yaml:"CDN"`
-	CDN_Value            string `yaml:"CDN_Value"`
-	Useragent            string `yaml:"Useragent"`
-	Datajitter           string `yaml:"Datajitter"`
-	Keylogger            string `yaml:"Keylogger"`
-	Forwarder            bool   `yaml:"Forwarder"`
+	Host                  string `yaml:"Host"`
+	Stage                 string `yaml:"Stage"`
+	Keystore              string `yaml:"Keystore"`
+	Password              string `yaml:"Password"`
+	Metadata              string `yaml:"Metadata"`
+	Injector              string `yaml:"Injector"`
+	Outfile               string `yaml:"Outfile"`
+	PE_Clone              string `yaml:"PE_Clone"`
+	Profile               string `yaml:"Profile"`
+	Post_EX_Process_Name  string `yaml:"Post-EX Processname"`
+	ProfilePath           string `yaml:"ProfilePath"`
+	Allocation            string `yaml:"allocation"`
+	Jitter                string `yaml:"Jitter"`
+	Debug                 bool   `yaml:"Debug"`
+	Sleep                 string `yaml:"Sleep"`
+	Uri                   string `yaml:"Uri"`
+	Customuri             string `yaml:"Customuri"`
+	CustomuriGET          string `yaml:"CustomuriGET"`
+	CustomuriPOST         string `yaml:"CustomuriPOST"`
+	CDN                   string `yaml:"CDN"`
+	CDN_Value             string `yaml:"CDN_Value"`
+	Useragent             string `yaml:"Useragent"`
+	Datajitter            string `yaml:"Datajitter"`
+	Keylogger             string `yaml:"Keylogger"`
+	Forwarder             bool   `yaml:"Forwarder"`
+  TasksMaxSize          string `yaml:TasksMaxSize`
+  TasksProxyMaxSize     string `yaml:TasksProxyMaxSize`
+  TasksDnsProxyMaxSize  string `yaml:TasksDnsProxyMaxSize`
 }
 
 func (c *conf) getConf(yamlfile string) *conf {
@@ -82,7 +88,10 @@ func (c *conf) getConf(yamlfile string) *conf {
 }
 
 func options() *FlagOptions {
-	sleeptime := flag.String("Sleep", "", "Initial beacon sleep time")
+	tasks_max_size := flag.String("TasksMaxSize", "1048576", "The maximum size (in bytes) of task(s) and proxy data that can be transferred through a communication channel at a check in")
+	tasks_proxy_max_size := flag.String("TasksProxyMaxSize", "921600", "The maximum size (in bytes) of proxy data to transfer via the communication channel at a check in")
+	tasks_dns_proxy_max_size := flag.String("TasksDnsProxyMaxSize", "71680", "The maximum size (in bytes) of proxy data to transfer via the DNS communication channel at a check in")
+  sleeptime := flag.String("Sleep", "", "Initial beacon sleep time")
 	stage := flag.String("Stage", "false", "Disable host staging (Default: False)")
 	jitter := flag.String("Jitter", "", "Jitter percentage for beacon call home")
 	useragent := flag.String("Useragent", "", `UserAgent string for the beacon to use (Leave blank to randomly select one):
@@ -179,7 +188,7 @@ func options() *FlagOptions {
 	Forwarder := flag.Bool("Forwarder", false, "Enabled the X-forwarded-For header (Good for when your C2 is behind a redirector)")
 	Yaml := flag.String("Yaml", "", "Path to the Yaml config file")
 	flag.Parse()
-	return &FlagOptions{stage: *stage, sleeptime: *sleeptime, jitter: *jitter, useragent: *useragent, uri: *uri, customuri: *customuri, customuriGET: *customuriGET, customuriPOST: *customuriPOST, beacon_PE: *beacon_PE, processinject_min_alloc: *processinject_min_alloc, Post_EX_Process_Name: *Post_EX_Process_Name, metadata: *metadata, injector: *injector, Host: *Host, Profile: *Profile, ProfilePath: *ProfilePath, outFile: *outFile, custom_cert: *custom_cert, cert_password: *cert_password, CDN: *CDN, CDN_Value: *CDN_Value, Yaml: *Yaml, Datajitter: *Datajitter, Keylogger: *Keylogger, Forwarder: *Forwarder}
+  return &FlagOptions{stage: *stage, sleeptime: *sleeptime, jitter: *jitter, useragent: *useragent, uri: *uri, customuri: *customuri, customuriGET: *customuriGET, customuriPOST: *customuriPOST, beacon_PE: *beacon_PE, processinject_min_alloc: *processinject_min_alloc, Post_EX_Process_Name: *Post_EX_Process_Name, metadata: *metadata, injector: *injector, Host: *Host, Profile: *Profile, ProfilePath: *ProfilePath, outFile: *outFile, custom_cert: *custom_cert, cert_password: *cert_password, CDN: *CDN, CDN_Value: *CDN_Value, Yaml: *Yaml, Datajitter: *Datajitter, Keylogger: *Keylogger, Forwarder: *Forwarder, tasks_max_size: *tasks_max_size, tasks_proxy_max_size: *tasks_proxy_max_size, tasks_dns_proxy_max_size: *tasks_dns_proxy_max_size}
 
 }
 
@@ -223,6 +232,9 @@ func main() {
 		opt.Datajitter = c.Datajitter
 		opt.Keylogger = c.Keylogger
 		opt.Forwarder = c.Forwarder
+    opt.tasks_max_size = c.TasksMaxSize
+    opt.tasks_proxy_max_size = c.TasksProxyMaxSize
+    opt.tasks_dns_proxy_max_size = c.TasksDnsProxyMaxSize
 	}
 	if opt.outFile == "" {
 		log.Fatal("Error: Please provide a file name to save the profile into")
@@ -237,5 +249,5 @@ func main() {
 		log.Fatal("Error: When using CustomuriGET/CustomuriPOST, both must be sepecified")
 	}
 
-	Loader.GenerateOptions(opt.stage, opt.sleeptime, opt.jitter, opt.useragent, opt.uri, opt.customuri, opt.customuriGET, opt.customuriPOST, opt.beacon_PE, opt.processinject_min_alloc, opt.Post_EX_Process_Name, opt.metadata, opt.injector, opt.Host, opt.Profile, opt.ProfilePath, opt.outFile, opt.custom_cert, opt.cert_password, opt.CDN, opt.CDN_Value, opt.Datajitter, opt.Keylogger, opt.Forwarder)
+	Loader.GenerateOptions(opt.stage, opt.sleeptime, opt.jitter, opt.useragent, opt.uri, opt.customuri, opt.customuriGET, opt.customuriPOST, opt.beacon_PE, opt.processinject_min_alloc, opt.Post_EX_Process_Name, opt.metadata, opt.injector, opt.Host, opt.Profile, opt.ProfilePath, opt.outFile, opt.custom_cert, opt.cert_password, opt.CDN, opt.CDN_Value, opt.Datajitter, opt.Keylogger, opt.Forwarder, opt.tasks_max_size, opt.tasks_proxy_max_size, opt.tasks_dns_proxy_max_size)
 }
