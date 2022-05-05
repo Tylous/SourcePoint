@@ -1279,6 +1279,11 @@ set sleeptime "{{.Variables.sleep}}";
 set jitter    "{{.Variables.jitter}}";
 set useragent "{{.Variables.useragent}}";
 
+# Task and Proxy Max Size
+set tasks_max_size "{{.Variables.tasks_max_size}}";
+set tasks_proxy_max_size "{{.Variables.tasks_proxy_max_size}}";
+set tasks_dns_proxy_max_size "{{.Variables.tasks_dns_proxy_max_size}}";
+
 set data_jitter "{{.Variables.datajitter}}";
 set smb_frame_header "";
 set pipename "{{.Variables.pipename}}";

@@ -153,6 +153,12 @@ Usage of ./SourcePoint:
         [*] Linux
         [*] Mac
         [*] Custom - Whatever string you specify will be used as the user agent
+  -TasksMaxSize string
+        The maximum size (in bytes) of task(s) and proxy data that can be transferred through a communication channel at a check in
+  -TasksProxyMaxSize string
+        The maximum size (in bytes) of proxy data to transfer via the communication channel at a check in.
+  -TasksDnsProxyMaxSize string
+        The maximum size (in bytes) of proxy data to transfer via the DNS communication channel at a check in.
   -Yaml string
         Path to the Yaml config file
 ```

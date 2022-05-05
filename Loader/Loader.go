@@ -13,24 +13,27 @@ import (
 )
 
 type FlagOptions struct {
-	sleeptime               string
-	jitter                  string
-	useragent               string
-	uri                     string
-	customuri               string
-	beacon_PE               string
-	processinject_min_alloc string
-	Post_EX_Process_Name    string
-	metadata                string
-	injector                string
-	Host                    string
-	outFile                 string
-	Profile                 string
-	ProfilePath             string
-	cert_password           string
-	custom_cert             string
-	CDN                     string
-	Yaml                    string
+	sleeptime                string
+	jitter                   string
+	useragent                string
+	uri                      string
+	customuri                string
+	beacon_PE                string
+	processinject_min_alloc  string
+	Post_EX_Process_Name     string
+	metadata                 string
+	injector                 string
+	Host                     string
+	outFile                  string
+	Profile                  string
+	ProfilePath              string
+	cert_password            string
+	custom_cert              string
+	CDN                      string
+	Yaml                     string
+	tasks_max_size           string
+	tasks_proxy_max_size     string
+	tasks_dns_proxy_max_size string
 }
 
 type Beacon_Com struct {
@@ -64,7 +67,7 @@ type Beacon_SSL struct {
 var num_Profile int
 var Post bool
 
-func GenerateOptions(stage, sleeptime, jitter, useragent, uri, customuri, customuriGET, customuriPOST, beacon_PE, processinject_min_alloc, Post_EX_Process_Name, metadata, injector, Host, Profile, ProfilePath, outFile, custom_cert, cert_password, CDN, CDN_Value, datajitter, Keylogger string, Forwarder bool) {
+func GenerateOptions(stage, sleeptime, jitter, useragent, uri, customuri, customuriGET, customuriPOST, beacon_PE, processinject_min_alloc, Post_EX_Process_Name, metadata, injector, Host, Profile, ProfilePath, outFile, custom_cert, cert_password, CDN, CDN_Value, datajitter, Keylogger string, Forwarder bool, tasks_max_size string, tasks_proxy_max_size string, tasks_dns_proxy_max_size string) {
 	Beacon_Com := &Beacon_Com{}
 	Beacon_Stage_p1 := &Beacon_Stage_p1{}
 	Beacon_Stage_p2 := &Beacon_Stage_p2{}
@@ -77,7 +80,7 @@ func GenerateOptions(stage, sleeptime, jitter, useragent, uri, customuri, custom
 	var HostStageMessage string
 
 	fmt.Println("[*] Preparing Varibles...")
-	HostStageMessage, Beacon_Com.Variables = GenerateComunication(stage, sleeptime, jitter, useragent, datajitter)
+	HostStageMessage, Beacon_Com.Variables = GenerateComunication(stage, sleeptime, jitter, useragent, datajitter, tasks_max_size, tasks_proxy_max_size, tasks_dns_proxy_max_size)
 	Beacon_PostEX.Variables = GeneratePostProcessName(Post_EX_Process_Name, Keylogger)
 	Beacon_GETPOST.Variables = GenerateHTTPVaribles(Host, metadata, uri, customuri, customuriGET, customuriPOST, CDN, CDN_Value, Profile, Forwarder)
 	Beacon_Stage_p2.Variables = GeneratePE(beacon_PE)
@@ -99,7 +102,7 @@ func GenerateOptions(stage, sleeptime, jitter, useragent, uri, customuri, custom
 	fmt.Println("[+] Happy Hacking")
 }
 
-func GenerateComunication(stage, sleeptime, jitter, useragent, datajitter string) (string, map[string]string) {
+func GenerateComunication(stage, sleeptime, jitter, useragent, datajitter string, tasks_max_size string, tasks_proxy_max_size string, tasks_dns_proxy_max_size string) (string, map[string]string) {
 	Beacon_Com := &Beacon_Com{}
 	Beacon_Com.Variables = make(map[string]string)
 	var HostStageMessage string
@@ -126,6 +129,22 @@ func GenerateComunication(stage, sleeptime, jitter, useragent, datajitter string
 	}
 	if datajitter == "" {
 		Beacon_Com.Variables["datajitter"] = Utils.GenerateNumer(10, 60)
+	}
+
+	if tasks_max_size != "" {
+		Beacon_Com.Variables["tasks_max_size"] = tasks_max_size
+	} else {
+		Beacon_Com.Variables["tasks_max_size"] = "1048576"
+	}
+	if tasks_proxy_max_size != "" {
+		Beacon_Com.Variables["tasks_proxy_max_size"] = tasks_proxy_max_size
+	} else {
+		Beacon_Com.Variables["tasks_proxy_max_size"] = "921600"
+	}
+	if tasks_dns_proxy_max_size != "" {
+		Beacon_Com.Variables["tasks_dns_proxy_max_size"] = tasks_dns_proxy_max_size
+	} else {
+		Beacon_Com.Variables["tasks_dns_proxy_max_size"] = "71680"
 	}
 	SSH_Numb, _ := strconv.Atoi(Utils.GenerateNumer(0, 4))
 	Beacon_Com.Variables["SSH_Banner"] = Struct.SSH_Banner[SSH_Numb]
