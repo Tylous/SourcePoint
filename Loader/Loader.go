@@ -349,14 +349,14 @@ func GenerateProfile(Profile, CDN, CDN_Value, cert_password, custom_cert, Profil
 	Beacon_GETPOST_Profile.Variables = make(map[string]string)
 	Beacon_SSL.Variables = make(map[string]string)
 	if Profile == "" {
-		CNAME := "\rhttps-certificate {\rset CN       \"" + hostname + "\"; #Common Name"
+		CNAME := "\nhttps-certificate {\rset CN       \"" + hostname + "\"; #Common Name"
 		Beacon_SSL.Variables["Cert"] = CNAME + Struct.Cert[num_Profile-1]
 		Beacon_GETPOST_Profile.Variables["Profile"] = Struct.HTTP_GET_POST_list[num_Profile-1]
 	}
 	if Profile != "" {
 		num_Profile, _ = strconv.Atoi(Profile)
 		if num_Profile <= 4 {
-			CNAME := "\rhttps-certificate {\rset CN       \"" + hostname + "\"; #Common Name"
+			CNAME := "\nhttps-certificate {\rset CN       \"" + hostname + "\"; #Common Name"
 			Beacon_SSL.Variables["Cert"] = CNAME + Struct.Cert[num_Profile-1]
 			Beacon_GETPOST_Profile.Variables["Profile"] = Struct.HTTP_GET_POST_list[(num_Profile - 1)]
 			fmt.Println("[!] Self Signed SSL Cerificate Used")

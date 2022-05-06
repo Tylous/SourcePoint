@@ -24,3 +24,6 @@ Customuri:
 CustomuriGET: 
 CustomuriPOST:
 Forwarder: False
+TasksMaxSize: 
+TasksProxyMaxSize:
+TasksDnsProxyMaxSize: 
