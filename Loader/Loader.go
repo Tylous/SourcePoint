@@ -308,7 +308,7 @@ func GeneratePE(beacon_PE string) map[string]string {
 	}
 	if beacon_PE != "" {
 		PE_Num, _ := strconv.Atoi(beacon_PE)
-		if PE_Num >= 30 {
+		if PE_Num > 30 {
 			log.Fatal("Error: Please provide a valid PE number less the 31 option")
 		}
 		Beacon_Stage_p2.Variables["pe"] = Struct.Peclone_list[(PE_Num - 1)]
