@@ -90,7 +90,7 @@ func GenerateOptions(stage, sleeptime, jitter, useragent, uri, customuri, custom
 	Build(custom_cert, cert_password, outFile, Beacon_Com, Beacon_Stage_p1, Beacon_Stage_p2, Beacon_Stage_p3, Process_Inject, Beacon_PostEX, Beacon_GETPOST, Beacon_GETPOST_Profile, Beacon_SSL)
 	fmt.Println(HostStageMessage)
 	PE := strings.Split(Beacon_Stage_p2.Variables["pe"], `;`)
-	PE_Name := strings.Split(PE[5], `"`)
+	PE_Name := strings.Split(PE[len(PE)-3], `"`)
 	fmt.Println("[*] Beacon DLL Spoofed To: " + PE_Name[1])
 	PEX := strings.Split(Beacon_PostEX.Variables["Post_EX_Process_Name"], `sysnative\\`)
 	PEX_Name := PEX[1]
@@ -308,7 +308,7 @@ func GeneratePE(beacon_PE string) map[string]string {
 	}
 	if beacon_PE != "" {
 		PE_Num, _ := strconv.Atoi(beacon_PE)
-		if PE_Num >= 30 {
+		if PE_Num > 30 {
 			log.Fatal("Error: Please provide a valid PE number less the 31 option")
 		}
 		Beacon_Stage_p2.Variables["pe"] = Struct.Peclone_list[(PE_Num - 1)]
