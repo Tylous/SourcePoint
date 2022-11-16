@@ -213,6 +213,8 @@ func GeneratePostProcessName(Post_EX_Process_Name, Keylogger string) map[string]
 		Beacon_PostEX.Variables["Keylogger"] = "SetWindowsHookEx"
 	} else {
 	}
+	pipe_number, _ := strconv.Atoi(Utils.GenerateNumer(0, 7))
+	Beacon_PostEX.Variables["pipename"] = Struct.Pipename_list[pipe_number]
 
 	return Beacon_PostEX.Variables
 }

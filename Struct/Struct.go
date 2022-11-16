@@ -11,7 +11,7 @@ var Profile_Names = []string{
 	`Field-Keyword`,
 	`Custom`}
 
-var Post_EX_Process_Name = []string{`
+	var Post_EX_Process_Name = []string{`
 	set spawnto_x86 "%windir%\\syswow64\\WerFault.exe";
 	set spawnto_x64 "%windir%\\sysnative\\WerFault.exe"; 
 `, `
@@ -33,8 +33,8 @@ var Post_EX_Process_Name = []string{`
 	set spawnto_x86 "%windir%\\syswow64\\bootcfg.exe";
 	set spawnto_x64 "%windir%\sysnative\\bootcfg.exe";
 `, `
-	set spawnto_x86 "%windir%\\syswow64\\dtdump.exe";
-	set spawnto_x64 "%windir%\\sysnative\\dtdump.exe";
+	set spawnto_x86 "%windir%\\syswow64\\w32tm.exe";
+	set spawnto_x64 "%windir%\\sysnative\\w32tm.exe";
 `, `
 	set spawnto_x86 "%windir%\\syswow64\\expand.exe";
 	set spawnto_x64 "%windir%\\sysnative\\expand.exe";
@@ -1595,6 +1595,9 @@ post-ex {
 	
 	# control the method used to log keystrokes 
 	set keylogger "{{.Variables.Keylogger}}";
+
+	# change our post-ex output named pipe names... 
+	set pipename "{{.Variables.pipename}}_####, pipe\\{{.Variables.pipename}}_##";
 }
 `
 }

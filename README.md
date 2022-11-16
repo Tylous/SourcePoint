@@ -114,7 +114,7 @@ Usage of ./SourcePoint:
         [5] bootcfg.exe
         [6] choice.exe
         [7] bootcfg.exe
-        [8] dtdump.exe
+        [8] w32tm.exe
         [9] expand.exe
         [10] fsutil.exe
         [11] gpupdate.exe
