@@ -7,6 +7,10 @@ import (
 	"strconv"
 	"strings"
 	"text/template"
+	"math/rand"
+	"time"
+	"net"
+	"encoding/binary"
 
 	"github.com/Tylous/SourcePoint/Struct"
 	"github.com/Tylous/SourcePoint/Utils"
@@ -102,6 +106,36 @@ func GenerateOptions(stage, sleeptime, jitter, useragent, uri, customuri, custom
 	fmt.Println("[+] Happy Hacking")
 }
 
+func GetIpFromCidr(netw string) string {
+	_, ipv4Net, err := net.ParseCIDR(netw)
+	if err != nil {
+		log.Fatal(err)
+	}
+	mask := binary.BigEndian.Uint32(ipv4Net.Mask)
+	start := binary.BigEndian.Uint32(ipv4Net.IP)
+	finish := (start & mask) | (mask ^ 0xffffffff)
+	var hosts []string
+	for i := start + 1; i <= finish-1; i++ {
+		ip := make(net.IP, 4)
+		binary.BigEndian.PutUint32(ip, i)
+		hosts = append(hosts, ip.String())
+	}
+	rand.Seed(time.Now().Unix())
+	return hosts[rand.Intn(len(hosts))]
+}
+
+var seededRand *rand.Rand = rand.New(
+	rand.NewSource(time.Now().UnixNano()))
+
+func GenerateRandomString(length int) string {
+	var charset = "abcdefghijklmnopqrstuvwxyz"
+	b := make([]byte, length)
+	for i := range b {
+	  b[i] = charset[seededRand.Intn(len(charset))]
+	}
+	return string(b)
+  }
+
 func GenerateComunication(stage, sleeptime, jitter, useragent, datajitter string, tasks_max_size string, tasks_proxy_max_size string, tasks_dns_proxy_max_size string) (string, map[string]string) {
 	Beacon_Com := &Beacon_Com{}
 	Beacon_Com.Variables = make(map[string]string)
@@ -146,6 +180,21 @@ func GenerateComunication(stage, sleeptime, jitter, useragent, datajitter string
 	} else {
 		Beacon_Com.Variables["tasks_dns_proxy_max_size"] = "71680"
 	}
+	//DNS Configs
+	Beacon_Com.Variables["dns_idle"] = GetIpFromCidr("73.140.245.0/24")
+	Beacon_Com.Variables["maxdns"] = "99"
+	Beacon_Com.Variables["dns_sleep"] = "300"
+	Beacon_Com.Variables["dns_ttl"] = "10"
+	Beacon_Com.Variables["dns_stager_prepend"] = "v=spf1 include:spf.protection.outlook.com -all"
+	Beacon_Com.Variables["dns_stager_subhost"] = GenerateRandomString(3) + "."
+	Beacon_Com.Variables["beacon"] = GenerateRandomString(3) + "."
+	Beacon_Com.Variables["get_A"] = GenerateRandomString(3) + "."
+	Beacon_Com.Variables["get_AAAA"] = GenerateRandomString(3) + "."
+	Beacon_Com.Variables["get_TXT"] = GenerateRandomString(3) + "."
+	Beacon_Com.Variables["put_metadata"] = GenerateRandomString(3) + "."
+	Beacon_Com.Variables["put_output"] = GenerateRandomString(3) + "."
+	Beacon_Com.Variables["ns_response"] = "idle"
+
 	SSH_Numb, _ := strconv.Atoi(Utils.GenerateNumer(0, 4))
 	Beacon_Com.Variables["SSH_Banner"] = Struct.SSH_Banner[SSH_Numb]
 

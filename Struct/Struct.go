@@ -1293,25 +1293,22 @@ set tcp_frame_header "";
 set ssh_banner "{{.Variables.SSH_Banner}}";
 set ssh_pipename "{{.Variables.SSH_pipename}}##";
 
-####Manaully add these if your doing C2 over DNS (Future Release)####
-##dns-beacon {
-#    set dns_idle             "1.2.3.4";
-#    set dns_max_txt          "199";
-#    set dns_sleep            "1";
-#    set dns_ttl              "5";
-#    set maxdns               "200";
-#    set dns_stager_prepend   "doc-stg-prepend";
-#    set dns_stager_subhost   "doc-stg-sh.";
 
-#    set beacon               "doc.bc.";
-#    set get_A                "doc.1a.";
-#    set get_AAAA             "doc.4a.";
-#    set get_TXT              "doc.tx.";
-#    set put_metadata         "doc.md.";
-#    set put_output           "doc.po.";
-#    set ns_response          "zero";
-
-#}
+dns-beacon {
+	set dns_idle              "{{.Variables.dns_idle}}";
+	set maxdns                "{{.Variables.maxdns}}";
+	set dns_sleep             "{{.Variables.dns_sleep}}";
+	set dns_ttl               "{{.Variables.dns_ttl}}";
+	set dns_stager_prepend    "{{.Variables.dns_stager_prepend}}"; 
+	set dns_stager_subhost    "{{.Variables.dns_stager_subhost}}";
+	set beacon                "{{.Variables.beacon}}";
+	set get_A                 "{{.Variables.get_A}}";
+	set get_AAAA              "{{.Variables.get_AAAA}}";
+	set get_TXT               "{{.Variables.get_TXT}}";
+	set put_metadata          "{{.Variables.put_metadata}}";
+	set put_output            "{{.Variables.put_output}}";
+	set ns_response           "{{.Variables.ns_response}}";
+  }
 
 `
 }
