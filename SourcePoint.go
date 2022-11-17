@@ -39,6 +39,7 @@ type FlagOptions struct {
 	tasks_max_size           string
 	tasks_proxy_max_size     string
 	tasks_dns_proxy_max_size string
+	maxdns					 string
 	Yaml                     string
 }
 
@@ -67,10 +68,11 @@ type conf struct {
 	Useragent            string `yaml:"Useragent"`
 	Datajitter           string `yaml:"Datajitter"`
 	Keylogger            string `yaml:"Keylogger"`
-	Forwarder            bool   `yaml:"Forwarder"`
 	TasksMaxSize         string `yaml:"TasksMaxSize"`
 	TasksProxyMaxSize    string `yaml:"TasksProxyMaxSize"`
 	TasksDnsProxyMaxSize string `yaml:"TasksDnsProxyMaxSize"`
+	Maxdns				 string `yaml:"Maxdns"`
+	Forwarder            bool   `yaml:"Forwarder"`
 }
 
 func (c *conf) getConf(yamlfile string) *conf {
@@ -182,14 +184,14 @@ func options() *FlagOptions {
 	cert_password := flag.String("Password", "", "SSL certificate password")
 	CDN_Value := flag.String("CDN-Value", "", "CDN cookie value (typically used for AzureEdge profiles)")
 	CDN := flag.String("CDN", "", "CDN cookie name (typically used for AzureEdge profiles)")
-	Forwarder := flag.Bool("Forwarder", false, "Enabled the X-forwarded-For header (Good for when your C2 is behind a redirector)")
 	tasks_max_size := flag.String("TasksMaxSize", "", "The maximum size (in bytes) of task(s) and proxy data that can be transferred through a communication channel at a check in")
 	tasks_proxy_max_size := flag.String("TasksProxyMaxSize", "", "The maximum size (in bytes) of proxy data to transfer via the communication channel at a check in")
 	tasks_dns_proxy_max_size := flag.String("TasksDnsProxyMaxSize", "", "The maximum size (in bytes) of proxy data to transfer via the DNS communication channel at a check in")
+	maxdns := flag.String("Maxdns", "", "Maximum length of hostname when uploading data over DNS (0-255) (default 200)")
+	Forwarder := flag.Bool("Forwarder", false, "Enabled the X-forwarded-For header (Good for when your C2 is behind a redirector)")
 	Yaml := flag.String("Yaml", "", "Path to the Yaml config file")
 	flag.Parse()
-	return &FlagOptions{stage: *stage, sleeptime: *sleeptime, jitter: *jitter, useragent: *useragent, uri: *uri, customuri: *customuri, customuriGET: *customuriGET, customuriPOST: *customuriPOST, beacon_PE: *beacon_PE, processinject_min_alloc: *processinject_min_alloc, Post_EX_Process_Name: *Post_EX_Process_Name, metadata: *metadata, injector: *injector, Host: *Host, Profile: *Profile, ProfilePath: *ProfilePath, outFile: *outFile, custom_cert: *custom_cert, cert_password: *cert_password, CDN: *CDN, CDN_Value: *CDN_Value, Yaml: *Yaml, Datajitter: *Datajitter, Keylogger: *Keylogger, Forwarder: *Forwarder, tasks_max_size: *tasks_max_size, tasks_proxy_max_size: *tasks_proxy_max_size, tasks_dns_proxy_max_size: *tasks_dns_proxy_max_size}
-
+	return &FlagOptions{stage: *stage, sleeptime: *sleeptime, jitter: *jitter, useragent: *useragent, uri: *uri, customuri: *customuri, customuriGET: *customuriGET, customuriPOST: *customuriPOST, beacon_PE: *beacon_PE, processinject_min_alloc: *processinject_min_alloc, Post_EX_Process_Name: *Post_EX_Process_Name, metadata: *metadata, injector: *injector, Host: *Host, Profile: *Profile, ProfilePath: *ProfilePath, outFile: *outFile, custom_cert: *custom_cert, cert_password: *cert_password, CDN: *CDN, CDN_Value: *CDN_Value, Yaml: *Yaml, Datajitter: *Datajitter, Keylogger: *Keylogger, Forwarder: *Forwarder, tasks_max_size: *tasks_max_size, tasks_proxy_max_size: *tasks_proxy_max_size, tasks_dns_proxy_max_size: *tasks_dns_proxy_max_size, maxdns: *maxdns}
 }
 
 func main() {
@@ -235,6 +237,7 @@ func main() {
 		opt.tasks_max_size = c.TasksMaxSize
 		opt.tasks_proxy_max_size = c.TasksProxyMaxSize
 		opt.tasks_dns_proxy_max_size = c.TasksDnsProxyMaxSize
+		opt.maxdns = c.Maxdns
 	}
 	if opt.outFile == "" {
 		log.Fatal("Error: Please provide a file name to save the profile into")
@@ -248,6 +251,5 @@ func main() {
 	if (opt.customuriGET != "" && opt.customuriPOST == "") || (opt.customuriGET == "" && opt.customuriPOST != "") {
 		log.Fatal("Error: When using CustomuriGET/CustomuriPOST, both must be sepecified")
 	}
-	fmt.Println(c.TasksMaxSize)
-	Loader.GenerateOptions(opt.stage, opt.sleeptime, opt.jitter, opt.useragent, opt.uri, opt.customuri, opt.customuriGET, opt.customuriPOST, opt.beacon_PE, opt.processinject_min_alloc, opt.Post_EX_Process_Name, opt.metadata, opt.injector, opt.Host, opt.Profile, opt.ProfilePath, opt.outFile, opt.custom_cert, opt.cert_password, opt.CDN, opt.CDN_Value, opt.Datajitter, opt.Keylogger, opt.Forwarder, opt.tasks_max_size, opt.tasks_proxy_max_size, opt.tasks_dns_proxy_max_size)
+	Loader.GenerateOptions(opt.stage, opt.sleeptime, opt.jitter, opt.useragent, opt.uri, opt.customuri, opt.customuriGET, opt.customuriPOST, opt.beacon_PE, opt.processinject_min_alloc, opt.Post_EX_Process_Name, opt.metadata, opt.injector, opt.Host, opt.Profile, opt.ProfilePath, opt.outFile, opt.custom_cert, opt.cert_password, opt.CDN, opt.CDN_Value, opt.Datajitter, opt.Keylogger, opt.Forwarder, opt.tasks_max_size, opt.tasks_proxy_max_size, opt.tasks_dns_proxy_max_size, opt.maxdns)
 }

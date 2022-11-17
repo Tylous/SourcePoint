@@ -63,6 +63,8 @@ Usage of ./SourcePoint:
         [*] SetWindowsHookEx (Uses SetWindowsHookEx API)
   -Keystore string
         SSL keystore name
+  -Maxdns
+        Maximum length of hostname when uploading data over DNS (0-255) (default 200)
   -Metadata string
         Specifies how to transform and embed metadata into the HTTP request:
         [*] base64
@@ -114,7 +116,7 @@ Usage of ./SourcePoint:
         [5] bootcfg.exe
         [6] choice.exe
         [7] bootcfg.exe
-        [8] dtdump.exe
+        [8] w32tm.exe
         [9] expand.exe
         [10] fsutil.exe
         [11] gpupdate.exe
