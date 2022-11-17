@@ -27,3 +27,4 @@ Forwarder: False
 TasksMaxSize: 
 TasksProxyMaxSize:
 TasksDnsProxyMaxSize: 
+Maxdns: 

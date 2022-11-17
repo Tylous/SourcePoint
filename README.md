@@ -63,6 +63,8 @@ Usage of ./SourcePoint:
         [*] SetWindowsHookEx (Uses SetWindowsHookEx API)
   -Keystore string
         SSL keystore name
+  -Maxdns
+        Maximum length of hostname when uploading data over DNS (0-255) (default 200)
   -Metadata string
         Specifies how to transform and embed metadata into the HTTP request:
         [*] base64

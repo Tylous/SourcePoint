@@ -38,6 +38,7 @@ type FlagOptions struct {
 	tasks_max_size           string
 	tasks_proxy_max_size     string
 	tasks_dns_proxy_max_size string
+	maxdns					 string
 }
 
 type Beacon_Com struct {
@@ -71,7 +72,7 @@ type Beacon_SSL struct {
 var num_Profile int
 var Post bool
 
-func GenerateOptions(stage, sleeptime, jitter, useragent, uri, customuri, customuriGET, customuriPOST, beacon_PE, processinject_min_alloc, Post_EX_Process_Name, metadata, injector, Host, Profile, ProfilePath, outFile, custom_cert, cert_password, CDN, CDN_Value, datajitter, Keylogger string, Forwarder bool, tasks_max_size string, tasks_proxy_max_size string, tasks_dns_proxy_max_size string) {
+func GenerateOptions(stage string, sleeptime string, jitter string, useragent string, uri string, customuri string, customuriGET string, customuriPOST string, beacon_PE string, processinject_min_alloc string, Post_EX_Process_Name string, metadata string, injector string, Host string, Profile string, ProfilePath string, outFile string, custom_cert string, cert_password string, CDN string, CDN_Value string, datajitter string, Keylogger string, Forwarder bool, tasks_max_size string, tasks_proxy_max_size string, tasks_dns_proxy_max_size string, maxdns string) {
 	Beacon_Com := &Beacon_Com{}
 	Beacon_Stage_p1 := &Beacon_Stage_p1{}
 	Beacon_Stage_p2 := &Beacon_Stage_p2{}
@@ -84,7 +85,7 @@ func GenerateOptions(stage, sleeptime, jitter, useragent, uri, customuri, custom
 	var HostStageMessage string
 
 	fmt.Println("[*] Preparing Varibles...")
-	HostStageMessage, Beacon_Com.Variables = GenerateComunication(stage, sleeptime, jitter, useragent, datajitter, tasks_max_size, tasks_proxy_max_size, tasks_dns_proxy_max_size)
+	HostStageMessage, Beacon_Com.Variables = GenerateComunication(stage, sleeptime, jitter, useragent, datajitter, tasks_max_size, tasks_proxy_max_size, tasks_dns_proxy_max_size, maxdns)
 	Beacon_PostEX.Variables = GeneratePostProcessName(Post_EX_Process_Name, Keylogger)
 	Beacon_GETPOST.Variables = GenerateHTTPVaribles(Host, metadata, uri, customuri, customuriGET, customuriPOST, CDN, CDN_Value, Profile, Forwarder)
 	Beacon_Stage_p2.Variables = GeneratePE(beacon_PE)
@@ -136,7 +137,7 @@ func GenerateRandomString(length int) string {
 	return string(b)
   }
 
-func GenerateComunication(stage, sleeptime, jitter, useragent, datajitter string, tasks_max_size string, tasks_proxy_max_size string, tasks_dns_proxy_max_size string) (string, map[string]string) {
+func GenerateComunication(stage, sleeptime, jitter, useragent, datajitter string, tasks_max_size string, tasks_proxy_max_size string, tasks_dns_proxy_max_size string, maxdns string) (string, map[string]string) {
 	Beacon_Com := &Beacon_Com{}
 	Beacon_Com.Variables = make(map[string]string)
 	var HostStageMessage string
@@ -164,7 +165,6 @@ func GenerateComunication(stage, sleeptime, jitter, useragent, datajitter string
 	if datajitter == "" {
 		Beacon_Com.Variables["datajitter"] = Utils.GenerateNumer(10, 60)
 	}
-
 	if tasks_max_size != "" {
 		Beacon_Com.Variables["tasks_max_size"] = tasks_max_size
 	} else {
@@ -182,7 +182,11 @@ func GenerateComunication(stage, sleeptime, jitter, useragent, datajitter string
 	}
 	//DNS Configs
 	Beacon_Com.Variables["dns_idle"] = GetIpFromCidr("73.140.245.0/24")
-	Beacon_Com.Variables["maxdns"] = "99"
+	if(maxdns) != "" {
+		Beacon_Com.Variables["maxdns"] = maxdns
+	} else {
+		Beacon_Com.Variables["maxdns"] = "200"
+	}
 	Beacon_Com.Variables["dns_sleep"] = "300"
 	Beacon_Com.Variables["dns_ttl"] = "10"
 	Beacon_Com.Variables["dns_stager_prepend"] = "v=spf1 include:spf.protection.outlook.com -all"
