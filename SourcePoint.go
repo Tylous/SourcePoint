@@ -39,6 +39,9 @@ type FlagOptions struct {
 	tasks_max_size           string
 	tasks_proxy_max_size     string
 	tasks_dns_proxy_max_size string
+	syscall_method           string
+	httplib                  string
+	threadspoof              bool
 	Yaml                     string
 }
 
@@ -71,6 +74,9 @@ type conf struct {
 	TasksMaxSize         string `yaml:"TasksMaxSize"`
 	TasksProxyMaxSize    string `yaml:"TasksProxyMaxSize"`
 	TasksDnsProxyMaxSize string `yaml:"TasksDnsProxyMaxSize"`
+	Syscall_method       string `yaml:"Syscall_method"`
+	Httplib              string `yaml:"Httplib"`
+	Threadspoof          bool   `yaml:"ThreadSpoof"`
 }
 
 func (c *conf) getConf(yamlfile string) *conf {
@@ -104,36 +110,36 @@ func options() *FlagOptions {
 	customuriGET := flag.String("CustomuriGET", "", "The base URI for custom HTTP GET profile - Must be used with CustomuriPOST")
 	customuriPOST := flag.String("CustomuriPOST", "", "The base URI for custom HTTP POST profile - Must be used with CustomuriGET")
 	beacon_PE := flag.String("PE_Clone", "", `PE file beacon will mimic (Use the number):
-[1] srv.dll
-[2] ActivationManager.dll
-[3] audioeng.dll
-[4] AzureSettingSyncProvider.dll
-[5] BingMaps.dll
-[6] BootMenuUX.dll
-[7] DIAGCPL.dll
+[1] ActivationManager.dll
+[2] audioeng.dll
+[3] AzureSettingSyncProvider.dll
+[4] BingMaps.dll
+[5] DIAGCPL.dll
+[6] EDGEHTML.dll
+[7] FILEMGMT.dll
 [8] FIREWALLCONTROLPANEL.dll
-[9] WMNetMgr.dll
-[10] wwanapi.dll
-[11] Windows.Storage.Search.dll
-[12] Windows.System.Diagnostics.dll
-[13] Windows.System.Launcher.dll
-[14] Windows.System.SystemManagement.dll
-[15] Windows.UI.BioFeedback.dll
-[16] Windows.UI.BlockedShutdown.dll
-[17] Windows.UI.Core.TextInput.dll
-[18] FILEMGMT.dll
-[19] polprocl.dll
-[20] GPSVC.dll
-[21] libcrypto.dll
-[22] rdpcomapi.dll
-[23] winsqlite3.dll
-[24] wow64.dll
+[9] GPSVC.dll
+[10] gpupvdev.dll
+[11] libcrypto.dll
+[12] srvcli.dll
+[13] srvsvc.dll
+[14] Windows.Storage.Search.dll
+[15] Windows.System.Diagnostics.dll
+[16] Windows.System.Launcher.dll
+[17] Windows.System.SystemManagement.dll
+[18] Windows.UI.BioFeedback.dll
+[19] Windows.UI.BlockedShutdown.dll
+[20] Windows.UI.Core.TextInput.DLL
+[21] winsqlite3.dll
+[22] WMNetMgr.DLL
+[23] wwanapi.dll
+[24] WWANSVC.DLL
 [25] wow64win.dll
-[26] WWANSVC.dll
-[27] CyMemDef64.dll (Cylance's DLL)
+[26] wow64.dll
+[27] ctiuser.dll (Carbon Black's DLL)
 [28] InProcessClient.dll (SentinelOne's DLL)
-[29] ctiuser.dll (Carbon Black's DLL)
-[30] umppc.dll (CrowdStrike's DLL)`)
+[29] umppc.dll (CrowdStrike's DLL)
+[30] CyMemDef64.dll (Cylance's DLL)`)
 	processinject_min_alloc := flag.String("Allocation", "", "Minimum amount of memory to request for injected content (must be higher than 4096)")
 	Post_EX_Process_Name := flag.String("PostEX_Name", "", `File Post-Ex activities will spawn and inject into (Use the number):
 [1] WerFault.exe
@@ -186,9 +192,17 @@ func options() *FlagOptions {
 	tasks_max_size := flag.String("TasksMaxSize", "", "The maximum size (in bytes) of task(s) and proxy data that can be transferred through a communication channel at a check in")
 	tasks_proxy_max_size := flag.String("TasksProxyMaxSize", "", "The maximum size (in bytes) of proxy data to transfer via the communication channel at a check in")
 	tasks_dns_proxy_max_size := flag.String("TasksDnsProxyMaxSize", "", "The maximum size (in bytes) of proxy data to transfer via the DNS communication channel at a check in")
+	syscall_method := flag.String("Syscall", "None", `Defines the ability to use direct/indirect system calls instead of the standard Windows API functions calls:
+[*] None
+[*] Direct
+[*] Indirect`)
+	httplib := flag.String("Httplib", "winhttp", `Select the default HTTP Beacon library:
+[*] wininet
+[*] winhttp'`)
+	threadspoof := flag.Bool("ThreadSpoof", true, "Sets post-ex DLLs to spawn threads with a spoofed start address. These are generated randomly")
 	Yaml := flag.String("Yaml", "", "Path to the Yaml config file")
 	flag.Parse()
-	return &FlagOptions{stage: *stage, sleeptime: *sleeptime, jitter: *jitter, useragent: *useragent, uri: *uri, customuri: *customuri, customuriGET: *customuriGET, customuriPOST: *customuriPOST, beacon_PE: *beacon_PE, processinject_min_alloc: *processinject_min_alloc, Post_EX_Process_Name: *Post_EX_Process_Name, metadata: *metadata, injector: *injector, Host: *Host, Profile: *Profile, ProfilePath: *ProfilePath, outFile: *outFile, custom_cert: *custom_cert, cert_password: *cert_password, CDN: *CDN, CDN_Value: *CDN_Value, Yaml: *Yaml, Datajitter: *Datajitter, Keylogger: *Keylogger, Forwarder: *Forwarder, tasks_max_size: *tasks_max_size, tasks_proxy_max_size: *tasks_proxy_max_size, tasks_dns_proxy_max_size: *tasks_dns_proxy_max_size}
+	return &FlagOptions{stage: *stage, sleeptime: *sleeptime, jitter: *jitter, useragent: *useragent, uri: *uri, customuri: *customuri, customuriGET: *customuriGET, customuriPOST: *customuriPOST, beacon_PE: *beacon_PE, processinject_min_alloc: *processinject_min_alloc, Post_EX_Process_Name: *Post_EX_Process_Name, metadata: *metadata, injector: *injector, Host: *Host, Profile: *Profile, ProfilePath: *ProfilePath, outFile: *outFile, custom_cert: *custom_cert, cert_password: *cert_password, CDN: *CDN, CDN_Value: *CDN_Value, Yaml: *Yaml, Datajitter: *Datajitter, Keylogger: *Keylogger, Forwarder: *Forwarder, tasks_max_size: *tasks_max_size, tasks_proxy_max_size: *tasks_proxy_max_size, tasks_dns_proxy_max_size: *tasks_dns_proxy_max_size, syscall_method: *syscall_method, httplib: *httplib, threadspoof: *threadspoof}
 
 }
 
@@ -235,6 +249,9 @@ func main() {
 		opt.tasks_max_size = c.TasksMaxSize
 		opt.tasks_proxy_max_size = c.TasksProxyMaxSize
 		opt.tasks_dns_proxy_max_size = c.TasksDnsProxyMaxSize
+		opt.syscall_method = c.Syscall_method
+		opt.httplib = c.Httplib
+		opt.threadspoof = c.Threadspoof
 	}
 	if opt.outFile == "" {
 		log.Fatal("Error: Please provide a file name to save the profile into")
@@ -249,5 +266,5 @@ func main() {
 		log.Fatal("Error: When using CustomuriGET/CustomuriPOST, both must be sepecified")
 	}
 	fmt.Println(c.TasksMaxSize)
-	Loader.GenerateOptions(opt.stage, opt.sleeptime, opt.jitter, opt.useragent, opt.uri, opt.customuri, opt.customuriGET, opt.customuriPOST, opt.beacon_PE, opt.processinject_min_alloc, opt.Post_EX_Process_Name, opt.metadata, opt.injector, opt.Host, opt.Profile, opt.ProfilePath, opt.outFile, opt.custom_cert, opt.cert_password, opt.CDN, opt.CDN_Value, opt.Datajitter, opt.Keylogger, opt.Forwarder, opt.tasks_max_size, opt.tasks_proxy_max_size, opt.tasks_dns_proxy_max_size)
+	Loader.GenerateOptions(opt.stage, opt.sleeptime, opt.jitter, opt.useragent, opt.uri, opt.customuri, opt.customuriGET, opt.customuriPOST, opt.beacon_PE, opt.processinject_min_alloc, opt.Post_EX_Process_Name, opt.metadata, opt.injector, opt.Host, opt.Profile, opt.ProfilePath, opt.outFile, opt.custom_cert, opt.cert_password, opt.CDN, opt.CDN_Value, opt.Datajitter, opt.Keylogger, opt.Forwarder, opt.tasks_max_size, opt.tasks_proxy_max_size, opt.tasks_dns_proxy_max_size, opt.syscall_method, opt.httplib, opt.threadspoof)
 }

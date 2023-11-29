@@ -1,7 +1,7 @@
 package Utils
 
 import (
-	"io/ioutil"
+	"fmt"
 	"log"
 	"math/rand"
 	"os"
@@ -14,6 +14,7 @@ const letters = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
 const numbers = "1234567890"
 const capital = "ABCDEF"
 const alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-"
+const alphanum = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
 const lowercasealpha = "abcdefghijklmnopqrstuvwxyz"
 
 func check(e error) {
@@ -23,7 +24,7 @@ func check(e error) {
 }
 
 func Readfile(inputFile string) string {
-	output, err := ioutil.ReadFile(inputFile)
+	output, err := os.ReadFile(inputFile)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -84,6 +85,23 @@ func GenerateValue(min, max int) string {
 		b[i] = alpha[rand.Intn(len(alpha))]
 	}
 	return string(b)
+}
+
+func GenerateSingleValue(num int) string {
+	n := num
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = alphanum[rand.Intn(len(alpha))]
+	}
+	return string(b)
+}
+
+func GenHex() string {
+	rand.Seed(time.Now().UnixNano())
+
+	// Generate a random number and convert it to a hexadecimal string
+	hexString := fmt.Sprintf("%x", rand.Intn(4096)) // 4096 is 16^3, ensuring up to 3 hex characters
+	return hexString
 }
 
 func GenerateURIValues(numb int, profile_type int, Post bool, customuri string) string {

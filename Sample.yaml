@@ -20,6 +20,9 @@ Customuri:
 CDN:
 CDN_Value: 
 ProfilePath:
+Syscall_method:
+Httplib: 
+ThreadSpoof: True
 Customuri: 
 CustomuriGET: 
 CustomuriPOST:

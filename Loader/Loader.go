@@ -67,7 +67,7 @@ type Beacon_SSL struct {
 var num_Profile int
 var Post bool
 
-func GenerateOptions(stage, sleeptime, jitter, useragent, uri, customuri, customuriGET, customuriPOST, beacon_PE, processinject_min_alloc, Post_EX_Process_Name, metadata, injector, Host, Profile, ProfilePath, outFile, custom_cert, cert_password, CDN, CDN_Value, datajitter, Keylogger string, Forwarder bool, tasks_max_size string, tasks_proxy_max_size string, tasks_dns_proxy_max_size string) {
+func GenerateOptions(stage, sleeptime, jitter, useragent, uri, customuri, customuriGET, customuriPOST, beacon_PE, processinject_min_alloc, Post_EX_Process_Name, metadata, injector, Host, Profile, ProfilePath, outFile, custom_cert, cert_password, CDN, CDN_Value, datajitter, Keylogger string, Forwarder bool, tasks_max_size string, tasks_proxy_max_size string, tasks_dns_proxy_max_size string, syscall_method string, httplib string, ThreadSpoof bool) {
 	Beacon_Com := &Beacon_Com{}
 	Beacon_Stage_p1 := &Beacon_Stage_p1{}
 	Beacon_Stage_p2 := &Beacon_Stage_p2{}
@@ -80,10 +80,10 @@ func GenerateOptions(stage, sleeptime, jitter, useragent, uri, customuri, custom
 	var HostStageMessage string
 
 	fmt.Println("[*] Preparing Varibles...")
-	HostStageMessage, Beacon_Com.Variables = GenerateComunication(stage, sleeptime, jitter, useragent, datajitter, tasks_max_size, tasks_proxy_max_size, tasks_dns_proxy_max_size)
-	Beacon_PostEX.Variables = GeneratePostProcessName(Post_EX_Process_Name, Keylogger)
+	HostStageMessage, Beacon_Com.Variables = GenerateComunication(stage, sleeptime, jitter, useragent, datajitter, tasks_max_size, tasks_proxy_max_size, tasks_dns_proxy_max_size, httplib)
+	Beacon_PostEX.Variables = GeneratePostProcessName(Post_EX_Process_Name, Keylogger, ThreadSpoof)
 	Beacon_GETPOST.Variables = GenerateHTTPVaribles(Host, metadata, uri, customuri, customuriGET, customuriPOST, CDN, CDN_Value, Profile, Forwarder)
-	Beacon_Stage_p2.Variables = GeneratePE(beacon_PE)
+	Beacon_Stage_p1.Variables, Beacon_Stage_p2.Variables = GeneratePE(beacon_PE, syscall_method)
 	Process_Inject.Variables = GenerateProcessInject(processinject_min_alloc, injector)
 	Beacon_GETPOST_Profile.Variables, Beacon_SSL.Variables = GenerateProfile(Profile, CDN, CDN_Value, cert_password, custom_cert, ProfilePath, Host)
 	fmt.Println("[*] Building Profile...")
@@ -96,13 +96,21 @@ func GenerateOptions(stage, sleeptime, jitter, useragent, uri, customuri, custom
 	PEX_Name := PEX[1]
 	fmt.Println("[*] Post-Ex Process Name: " + PEX_Name[:(len(PEX_Name)-3)])
 	fmt.Println("[!] Beacon Shellcode Will Obfuscate Beacon in Memory Prior to Sleeping")
+	if ThreadSpoof == true {
+		fmt.Println("[!] ThreadSpooffing in enabled")
+	}
+	if syscall_method == "none" {
+		fmt.Println("[!] No Syscall method selected")
+	} else {
+		fmt.Println("[!] " + syscall_method + " syscall method selected")
+	}
 	Name, _ := strconv.Atoi(Profile)
 	fmt.Println("[*] Seleted Profile: " + Struct.Profile_Names[Name])
 	fmt.Println("[+] Profile Generated: " + outFile)
 	fmt.Println("[+] Happy Hacking")
 }
 
-func GenerateComunication(stage, sleeptime, jitter, useragent, datajitter string, tasks_max_size string, tasks_proxy_max_size string, tasks_dns_proxy_max_size string) (string, map[string]string) {
+func GenerateComunication(stage, sleeptime, jitter, useragent, datajitter string, tasks_max_size string, tasks_proxy_max_size string, tasks_dns_proxy_max_size string, httplib string) (string, map[string]string) {
 	Beacon_Com := &Beacon_Com{}
 	Beacon_Com.Variables = make(map[string]string)
 	var HostStageMessage string
@@ -193,10 +201,16 @@ func GenerateComunication(stage, sleeptime, jitter, useragent, datajitter string
 
 	}
 
+	if httplib != "" {
+		Beacon_Com.Variables["httplib"] = httplib
+	} else {
+		Beacon_Com.Variables["httplib"] = "wininet"
+	}
+
 	return HostStageMessage, Beacon_Com.Variables
 }
 
-func GeneratePostProcessName(Post_EX_Process_Name, Keylogger string) map[string]string {
+func GeneratePostProcessName(Post_EX_Process_Name, Keylogger string, ThreadSpoof bool) map[string]string {
 	Beacon_PostEX := &Beacon_PostEX{}
 	Beacon_PostEX.Variables = make(map[string]string)
 	if Post_EX_Process_Name != "" {
@@ -212,6 +226,13 @@ func GeneratePostProcessName(Post_EX_Process_Name, Keylogger string) map[string]
 	} else if Keylogger == "" {
 		Beacon_PostEX.Variables["Keylogger"] = "SetWindowsHookEx"
 	} else {
+	}
+
+	if ThreadSpoof == true {
+		threadhint_num, _ := strconv.Atoi(Utils.GenerateNumer(0, 8))
+		Beacon_PostEX.Variables["thread_hint"] = "set thread_hint \"" + Struct.Thread_list[(threadhint_num)] + Utils.GenHex() + "\";"
+	} else {
+		Beacon_PostEX.Variables["thread_hint"] = ""
 	}
 
 	return Beacon_PostEX.Variables
@@ -290,6 +311,7 @@ func GenerateHTTPVaribles(Host, metadata, uri, customuri, customuriGET, customur
 	Beacon_GETPOST.Variables["UValue"] = Utils.GenerateValue(6, 15)
 	Beacon_GETPOST.Variables["CSMValue"] = Utils.GenerateValue(6, 15)
 
+	//needs to be put stacic
 	if Forwarder == true {
 		Beacon_GETPOST.Variables["forward"] = "true"
 	} else {
@@ -299,9 +321,34 @@ func GenerateHTTPVaribles(Host, metadata, uri, customuri, customuriGET, customur
 	return Beacon_GETPOST.Variables
 }
 
-func GeneratePE(beacon_PE string) map[string]string {
+func GeneratePE(beacon_PE string, syscall_method string) (map[string]string, map[string]string) {
+	Beacon_Stage_p1 := &Beacon_Stage_p1{}
+	Beacon_Stage_p1.Variables = make(map[string]string)
+
 	Beacon_Stage_p2 := &Beacon_Stage_p2{}
 	Beacon_Stage_p2.Variables = make(map[string]string)
+
+	if syscall_method == "" {
+		syscall_method_Num, _ := strconv.Atoi(Utils.GenerateNumer(0, 2))
+		Beacon_Stage_p1.Variables["syscall_method"] = Struct.Syscall_Method[(syscall_method_Num)]
+	}
+
+	if syscall_method != "" {
+		if syscall_method == "none" {
+			Beacon_Stage_p1.Variables["syscall_method"] = "None"
+		} else if syscall_method == "direct" {
+			Beacon_Stage_p1.Variables["syscall_method"] = "Direct"
+		} else if syscall_method == "indirect" {
+			Beacon_Stage_p1.Variables["syscall_method"] = "Indirect"
+		} else {
+			log.Fatal("Error: Please provide a valid Syscall Method")
+		}
+	}
+
+	gen_number, _ := strconv.Atoi(Utils.GenerateNumer(0, 6))
+	Beacon_Stage_p1.Variables["magic_mz_x64"] = Struct.Magic_PE[gen_number]
+	Beacon_Stage_p1.Variables["magic_pe"] = strings.ToUpper(Utils.GenerateSingleValue(2))
+
 	if beacon_PE == "" {
 		PE_Num, _ := strconv.Atoi(Utils.GenerateNumer(0, 30))
 		Beacon_Stage_p2.Variables["pe"] = Struct.Peclone_list[PE_Num]
@@ -313,7 +360,7 @@ func GeneratePE(beacon_PE string) map[string]string {
 		}
 		Beacon_Stage_p2.Variables["pe"] = Struct.Peclone_list[(PE_Num - 1)]
 	}
-	return Beacon_Stage_p2.Variables
+	return Beacon_Stage_p1.Variables, Beacon_Stage_p2.Variables
 }
 
 func GenerateProcessInject(processinject_min_alloc, injector string) map[string]string {
@@ -340,6 +387,7 @@ func GenerateProcessInject(processinject_min_alloc, injector string) map[string]
 	} else {
 		log.Fatal("Error: Please provide a valid Process Injector option")
 	}
+
 	return Process_Inject.Variables
 }
 
@@ -417,7 +465,6 @@ func GenerateProfile(Profile, CDN, CDN_Value, cert_password, custom_cert, Profil
 
 func Build(custom_cert, cert_password, outFile string, Beacon_Com *Beacon_Com, Beacon_Stage_p1 *Beacon_Stage_p1, Beacon_Stage_p2 *Beacon_Stage_p2, Beacon_Stage_p3 *Beacon_Stage_p3, Process_Inject *Process_Inject, Beacon_PostEX *Beacon_PostEX, Beacon_GETPOST *Beacon_GETPOST, Beacon_GETPOST_Profile *Beacon_GETPOST_Profile, Beacon_SSL *Beacon_SSL) {
 	var buffer bytes.Buffer
-
 	Beacon_Com_Struct_Template, err := template.New("Beacon_Com").Parse(Struct.Beacon_Com_Struct())
 	if err != nil {
 		log.Fatal(err)

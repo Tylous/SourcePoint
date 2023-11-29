@@ -6,7 +6,7 @@ SourcePoint is a polymorphic C2 profile generator for Cobalt Strike C2s, written
 
 
 <p align="center"> <img src=Screenshots/C2int_p1.png width="900" height="710" border="2px solid #555">
-<p align="center"> <img src=Screenshots/C2int_p2.png width="900" height="480" border="2px solid #555">
+<p align="center"> <img src=Screenshots/C2int_p2.png border="2px solid #555">
 
 ```
 go install github.com/Tylous/SourcePoint
@@ -40,17 +40,21 @@ Usage of ./SourcePoint:
   -CDN-Value string
         CDN cookie value (typically used for AzureEdge profiles)
   -Customuri string
-        The base URI for custom HTTP GET/POST profile (default "0") - Cannot be used with CustomuriGET or CustomuriPOST
+        The base URI for custom HTTP GET/POST profile - Cannot be used with CustomuriGET or CustomuriPOST
   -CustomuriGET string
-        The base URI for custom HTTP GET profile (default "0") - Must be used with CustomuriPOST
+        The base URI for custom HTTP GET profile - Must be used with CustomuriPOST
   -CustomuriPOST string
-        The base URI for custom HTTP POST profile (default "0") - Must be used with CustomuriGET
+        The base URI for custom HTTP POST profile - Must be used with CustomuriGET
   -Datajitter string
         Appends a value to HTTP-Get and HTTP-Post server output (default "50")
   -Forwarder
         Enabled the X-forwarded-For header (Good for when your C2 is behind a redirector)
   -Host string
         Team server domain name
+  -Httplib string
+        Select the default HTTP Beacon library:
+        [*] wininet
+        [*] winhttp' (default "winhttp")
   -Injector string
         Select the preferred method to allocate memory in the remote process:
         [*] VirtualAllocEx (Great for cross architecture i.e x86 -> x64 and x64->x86)
@@ -73,36 +77,36 @@ Usage of ./SourcePoint:
         Name of output file
   -PE_Clone string
         PE file beacon will mimic (Use the number):
-        [1] srv.dll
-        [2] ActivationManager.dll
-        [3] audioeng.dll
-        [4] AzureSettingSyncProvider.dll
-        [5] BingMaps.dll
-        [6] BootMenuUX.dll
-        [7] DIAGCPL.dll
+        [1] ActivationManager.dll
+        [2] audioeng.dll
+        [3] AzureSettingSyncProvider.dll
+        [4] BingMaps.dll
+        [5] DIAGCPL.dll
+        [6] EDGEHTML.dll
+        [7] FILEMGMT.dll
         [8] FIREWALLCONTROLPANEL.dll
-        [9] WMNetMgr.dll
-        [10] wwanapi.dll
-        [11] Windows.Storage.Search.dll
-        [12] Windows.System.Diagnostics.dll
-        [13] Windows.System.Launcher.dll
-        [14] Windows.System.SystemManagement.dll
-        [15] Windows.UI.BioFeedback.dll
-        [16] Windows.UI.BlockedShutdown.dll
-        [17] Windows.UI.Core.TextInput.dll
-        [18] FILEMGMT.dll
-        [19] polprocl.dll
-        [20] GPSVC.dll
-        [21] libcrypto.dll
-        [22] rdpcomapi.dll
-        [23] winsqlite3.dll
-        [24] wow64.dll
+        [9] GPSVC.dll
+        [10] gpupvdev.dll
+        [11] libcrypto.dll
+        [12] srvcli.dll
+        [13] srvsvc.dll
+        [14] Windows.Storage.Search.dll
+        [15] Windows.System.Diagnostics.dll
+        [16] Windows.System.Launcher.dll
+        [17] Windows.System.SystemManagement.dll
+        [18] Windows.UI.BioFeedback.dll
+        [19] Windows.UI.BlockedShutdown.dll
+        [20] Windows.UI.Core.TextInput.DLL
+        [21] winsqlite3.dll
+        [22] WMNetMgr.DLL
+        [23] wwanapi.dll
+        [24] WWANSVC.DLL
         [25] wow64win.dll
-        [26] WWANSVC.dll
-        [27] CyMemDef64.dll (Cylance's DLL)
+        [26] wow64.dll
+        [27] ctiuser.dll (Carbon Black's DLL)
         [28] InProcessClient.dll (SentinelOne's DLL)
-        [29] ctiuser.dll (Carbon Black's DLL)
-        [30] umppc.dll (CrowdStrike's DLL)
+        [29] umppc.dll (CrowdStrike's DLL)
+        [30] CyMemDef64.dll (Cylance's DLL)
   -Password string
         SSL certificate password
   -PostEX_Name string
@@ -140,7 +144,20 @@ Usage of ./SourcePoint:
   -Sleep string
         Initial beacon sleep time
   -Stage string
-        Disable host staging (Default: False) (default "False")
+        Disable host staging (Default: False) (default "false")
+  -Syscall string
+        Defines the ability to use direct/indirect system calls instead of the standard Windows API functions calls:
+        [*] None
+        [*] Direct
+        [*] Indirect (default "None")
+  -TasksDnsProxyMaxSize string
+        The maximum size (in bytes) of proxy data to transfer via the DNS communication channel at a check in
+  -TasksMaxSize string
+        The maximum size (in bytes) of task(s) and proxy data that can be transferred through a communication channel at a check in
+  -TasksProxyMaxSize string
+        The maximum size (in bytes) of proxy data to transfer via the communication channel at a check in
+  -ThreadSpoof
+        Sets post-ex DLLs to spawn threads with a spoofed start address. These are generated randomly (default true)
   -Uri string
         The number URIs a profile for beacons to choose from
   -Useragent string
@@ -152,13 +169,6 @@ Usage of ./SourcePoint:
         [*] Win6.3
         [*] Linux
         [*] Mac
-        [*] Custom - Whatever string you specify will be used as the user agent
-  -TasksMaxSize string
-        The maximum size (in bytes) of task(s) and proxy data that can be transferred through a communication channel at a check in
-  -TasksProxyMaxSize string
-        The maximum size (in bytes) of proxy data to transfer via the communication channel at a check in.
-  -TasksDnsProxyMaxSize string
-        The maximum size (in bytes) of proxy data to transfer via the DNS communication channel at a check in.
   -Yaml string
         Path to the Yaml config file
 ```
@@ -186,6 +196,7 @@ This part of your profile modifies how the beacon operators. Some of the feature
 * TCP Frame Header - Adds a header value to the TCP beacon messages
 * SSH Banner - The SSH banner used
 * SSH Pipename - The name used for the SSH banner
+* HttpLib - The library attribute allows the user to specify the default library used by the generated beacons used by the profile. The value can be "wininet" or "winhttp"
 
 ### Stage
 This part of your profile controls how beacon is loaded into memory and edit the content of the beacon DLL. Some of the features used to modify the behaviour are:
@@ -194,10 +205,14 @@ This part of your profile controls how beacon is loaded into memory and edit the
 * Stomppe - Asks the payload to stomp MZ, PE and, e_lfanen values after loading
 * Clean up - Tells the beacon to free up memory assoicated with the refelctive DLL that initalized it
 * UseRWX - Ensures shellcode does not use Read, Write Execute permissions
+* Magic_MZ - Overrides the first bytes (MZ header included) of Beacon's Reflective DLL (currently only for x64)
+* Magic_PE - Overrides the PE character marker used by Beacon's Reflective Loader with another value
+* Syscall - Defines the ability to use system calls instead of the standard Windows API functions
 * Smart Inject - Uses embedded function pointer hints to bootstrap the beacon agent without walking kernel32 EAT
 * Sleep Mask - TCP and SMB beacons will obfuscate themselves at rest while they wait for the connection to be established
 * PE Header - Changes the characteristics of your beacon Reflective DLL to look like something else in memory
-* Transformation - Transform beacon's Reflective DLL stage by removing or adding strings to the .rdata section
+* Transformation - Transform beacon's Reflective DLL stage by removing or adding strings to the .rdata 
+
 
 ### Process-Inject
 This part of your profile controls how the beacon shapes injected content and controls process injection behavior. Some of the features used to modify the behaviour are:
@@ -217,6 +232,8 @@ This part of your profile controls how the beacon handles post-exploitation modu
 * Smart Inject - Pass key function pointers from beacon to its child jobs
 * AMSI disable - Disable AMSI for powerpick, execute-assembly, and psinject (Certain EDRs can detect this best avoid using these tools)
 * Keylogger - Determines how the keystroker logging API use to capture keystrokes
+* Cleanup - Cleanups the post-ex User Defined Reflective DLL ("UDRL") memory when the post-ex DLL is loaded
+* Threadhint - Allows post-ex DLLs to spawn threads with a spoofed start address
 
 
 ### Profiles
@@ -237,6 +254,11 @@ The last option (8) is designed to input a custom profile. This option is design
 
 
 To do so, use the following options `-Customuri` and `-ProfilePath` along with `-Profile 8`. To use a different URI base for GET and POST, `-CustomuriGET` and  `-CustomuriPOST` should be used in place of `-Customuri`. While developing a profile, it’s highly recommended to use the native ./c2lint to verify everything is working. 
+
+## Sample Example 
+By combining these options into one profile you can create a highly effective beacon that can circumvent preventive and detective controls. While this remains an evolving cat-and-mouse game, combining the right options against a specific security stack can be quite effective. 
+
+<p align="center"> <img src=Screenshots/MDE_Example.png border="2px solid #555">
 
 
 ## Sample Yaml Configs
@@ -264,7 +286,16 @@ Customuri:
 CDN:
 CDN_Value: 
 ProfilePath: 
+Syscall_method:
+Httplib:
+ThreadSpoof: true
+Customuri: 
+CustomuriGET: 
+CustomuriPOST:
 Forwarder: False
+TasksMaxSize: 
+TasksProxyMaxSize:
+TasksDnsProxyMaxSize: 
 ```
 
 
