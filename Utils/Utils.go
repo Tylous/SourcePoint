@@ -91,7 +91,7 @@ func GenerateSingleValue(num int) string {
 	n := num
 	b := make([]byte, n)
 	for i := range b {
-		b[i] = alphanum[rand.Intn(len(alpha))]
+		b[i] = alphanum[rand.Intn(len(alphanum))]
 	}
 	return string(b)
 }

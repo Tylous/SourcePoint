@@ -99,7 +99,7 @@ func GenerateOptions(stage, sleeptime, jitter, useragent, uri, customuri, custom
 	if ThreadSpoof == true {
 		fmt.Println("[!] ThreadSpooffing in enabled")
 	}
-	if syscall_method == "none" {
+	if syscall_method == "None" {
 		fmt.Println("[!] No Syscall method selected")
 	} else {
 		fmt.Println("[!] " + syscall_method + " syscall method selected")
@@ -334,11 +334,11 @@ func GeneratePE(beacon_PE string, syscall_method string) (map[string]string, map
 	}
 
 	if syscall_method != "" {
-		if syscall_method == "none" {
+		if syscall_method == "None" {
 			Beacon_Stage_p1.Variables["syscall_method"] = "None"
-		} else if syscall_method == "direct" {
+		} else if syscall_method == "Direct" {
 			Beacon_Stage_p1.Variables["syscall_method"] = "Direct"
-		} else if syscall_method == "indirect" {
+		} else if syscall_method == "Indirect" {
 			Beacon_Stage_p1.Variables["syscall_method"] = "Indirect"
 		} else {
 			log.Fatal("Error: Please provide a valid Syscall Method")
