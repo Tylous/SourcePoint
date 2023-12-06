@@ -83,7 +83,7 @@ func GenerateOptions(stage, sleeptime, jitter, useragent, uri, customuri, custom
 	HostStageMessage, Beacon_Com.Variables = GenerateComunication(stage, sleeptime, jitter, useragent, datajitter, tasks_max_size, tasks_proxy_max_size, tasks_dns_proxy_max_size, httplib)
 	Beacon_PostEX.Variables = GeneratePostProcessName(Post_EX_Process_Name, Keylogger, ThreadSpoof)
 	Beacon_GETPOST.Variables = GenerateHTTPVaribles(Host, metadata, uri, customuri, customuriGET, customuriPOST, CDN, CDN_Value, Profile, Forwarder)
-	Beacon_Stage_p1.Variables, Beacon_Stage_p2.Variables = GeneratePE(beacon_PE, syscall_method)
+	Beacon_Stage_p1.Variables, Beacon_Stage_p2.Variables, syscall_method = GeneratePE(beacon_PE, syscall_method)
 	Process_Inject.Variables = GenerateProcessInject(processinject_min_alloc, injector)
 	Beacon_GETPOST_Profile.Variables, Beacon_SSL.Variables = GenerateProfile(Profile, CDN, CDN_Value, cert_password, custom_cert, ProfilePath, Host)
 	fmt.Println("[*] Building Profile...")
@@ -218,7 +218,7 @@ func GeneratePostProcessName(Post_EX_Process_Name, Keylogger string, ThreadSpoof
 		Beacon_PostEX.Variables["Post_EX_Process_Name"] = Struct.Post_EX_Process_Name[(num_PSPN - 1)]
 	}
 	if Post_EX_Process_Name == "" {
-		num_Post_EX_Process_Name, _ := strconv.Atoi(Utils.GenerateNumer(0, 17))
+		num_Post_EX_Process_Name, _ := strconv.Atoi(Utils.GenerateNumer(0, 14))
 		Beacon_PostEX.Variables["Post_EX_Process_Name"] = Struct.Post_EX_Process_Name[num_Post_EX_Process_Name]
 	}
 	if Keylogger == "GetAsyncKeyState" || Keylogger == "SetWindowsHookEx" {
@@ -321,7 +321,7 @@ func GenerateHTTPVaribles(Host, metadata, uri, customuri, customuriGET, customur
 	return Beacon_GETPOST.Variables
 }
 
-func GeneratePE(beacon_PE string, syscall_method string) (map[string]string, map[string]string) {
+func GeneratePE(beacon_PE string, syscall_method string) (map[string]string, map[string]string, string) {
 	Beacon_Stage_p1 := &Beacon_Stage_p1{}
 	Beacon_Stage_p1.Variables = make(map[string]string)
 
@@ -329,20 +329,16 @@ func GeneratePE(beacon_PE string, syscall_method string) (map[string]string, map
 	Beacon_Stage_p2.Variables = make(map[string]string)
 
 	if syscall_method == "" {
-		syscall_method_Num, _ := strconv.Atoi(Utils.GenerateNumer(0, 2))
-		Beacon_Stage_p1.Variables["syscall_method"] = Struct.Syscall_Method[(syscall_method_Num)]
+		syscall_method = "None"
 	}
-
-	if syscall_method != "" {
-		if syscall_method == "None" {
-			Beacon_Stage_p1.Variables["syscall_method"] = "None"
-		} else if syscall_method == "Direct" {
-			Beacon_Stage_p1.Variables["syscall_method"] = "Direct"
-		} else if syscall_method == "Indirect" {
-			Beacon_Stage_p1.Variables["syscall_method"] = "Indirect"
-		} else {
-			log.Fatal("Error: Please provide a valid Syscall Method")
-		}
+	if syscall_method == "None" {
+		Beacon_Stage_p1.Variables["syscall_method"] = "None"
+	} else if syscall_method == "Direct" {
+		Beacon_Stage_p1.Variables["syscall_method"] = "Direct"
+	} else if syscall_method == "Indirect" {
+		Beacon_Stage_p1.Variables["syscall_method"] = "Indirect"
+	} else {
+		log.Fatal("Error: Please provide a valid Syscall Method")
 	}
 
 	gen_number, _ := strconv.Atoi(Utils.GenerateNumer(0, 6))
@@ -360,7 +356,7 @@ func GeneratePE(beacon_PE string, syscall_method string) (map[string]string, map
 		}
 		Beacon_Stage_p2.Variables["pe"] = Struct.Peclone_list[(PE_Num - 1)]
 	}
-	return Beacon_Stage_p1.Variables, Beacon_Stage_p2.Variables
+	return Beacon_Stage_p1.Variables, Beacon_Stage_p2.Variables, syscall_method
 }
 
 func GenerateProcessInject(processinject_min_alloc, injector string) map[string]string {

@@ -113,22 +113,19 @@ Usage of ./SourcePoint:
         File Post-Ex activities will spawn and inject into (Use the number):
         [1] WerFault.exe
         [2] WWAHost.exe
-        [3] wlanext.exe
-        [4] auditpol.exe
-        [5] bootcfg.exe
-        [6] choice.exe
-        [7] bootcfg.exe
-        [8] dtdump.exe
-        [9] expand.exe
-        [10] fsutil.exe
-        [11] gpupdate.exe
-        [12] gpresult.exe
-        [13] logman.exe
-        [14] mcbuilder.exe
-        [15] mtstocom.exe
-        [16] pcaui.exe
-        [17] powercfg.exe
-        [18] svchost.exe
+        [3] choice.exe
+        [4] bootcfg.exe
+        [5] dtdump.exe
+        [6] expand.exe
+        [7] fsutil.exe
+        [8] gpupdate.exe
+        [9] gpresult.exe
+        [10] logman.exe
+        [11] mcbuilder.exe
+        [12] mtstocom.exe
+        [13] pcaui.exe
+        [14] powercfg.exe
+        [15] svchost.exe
   -Profile string
         HTTP GET/POST profile (Use the number):
         [1] Windowsupdate

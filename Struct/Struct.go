@@ -91,7 +91,7 @@ var Magic_PE = []string{
 	"AXAP",
 	"AZAR",
 	"A[AS",
-	"A\\AT",
+	"A\\\\AT",
 	"A]AU",
 	"A^AV",
 	"A_AW",
