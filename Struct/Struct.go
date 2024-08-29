@@ -1322,7 +1322,9 @@ stage {
 	set cleanup "true";
 	set userwx "false";
 	set smartinject "true";
-
+	beacon_gate {
+	    {{.Variables.beacongate}}
+	}
 	set syscall_method "{{.Variables.syscall_method}}"; #### needs a varible
 	###will change down the road but 32-bit shouldn't be used that much
 	set magic_mz_x86 "MZRE";
@@ -1339,6 +1341,7 @@ func Beacon_Stage_p2_Stuct() string {
 	{{.Variables.pe}}
 	`
 }
+
 func Beacon_GETPOST_Profile_Struct() string {
 	return `
 	{{.Variables.Profile}}

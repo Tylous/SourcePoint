@@ -43,6 +43,7 @@ type FlagOptions struct {
 	httplib                  string
 	threadspoof              bool
 	Yaml                     string
+	beacongate               string
 }
 
 type conf struct {
@@ -77,6 +78,7 @@ type conf struct {
 	Syscall_method       string `yaml:"Syscall_method"`
 	Httplib              string `yaml:"Httplib"`
 	Threadspoof          bool   `yaml:"ThreadSpoof"`
+	BeaconGate           string `yaml:"BeaconGate"`
 }
 
 func (c *conf) getConf(yamlfile string) *conf {
@@ -198,8 +200,9 @@ func options() *FlagOptions {
 [*] winhttp'`)
 	threadspoof := flag.Bool("ThreadSpoof", true, "Sets post-ex DLLs to spawn threads with a spoofed start address. These are generated randomly")
 	Yaml := flag.String("Yaml", "", "Path to the Yaml config file")
+	beacongate := flag.String("BeaconGate", "", "Specify beacon gate options (All, Comms, Core, Cleanup) or specific APIs")
 	flag.Parse()
-	return &FlagOptions{stage: *stage, sleeptime: *sleeptime, jitter: *jitter, useragent: *useragent, uri: *uri, customuri: *customuri, customuriGET: *customuriGET, customuriPOST: *customuriPOST, beacon_PE: *beacon_PE, processinject_min_alloc: *processinject_min_alloc, Post_EX_Process_Name: *Post_EX_Process_Name, metadata: *metadata, injector: *injector, Host: *Host, Profile: *Profile, ProfilePath: *ProfilePath, outFile: *outFile, custom_cert: *custom_cert, cert_password: *cert_password, CDN: *CDN, CDN_Value: *CDN_Value, Yaml: *Yaml, Datajitter: *Datajitter, Keylogger: *Keylogger, Forwarder: *Forwarder, tasks_max_size: *tasks_max_size, tasks_proxy_max_size: *tasks_proxy_max_size, tasks_dns_proxy_max_size: *tasks_dns_proxy_max_size, syscall_method: *syscall_method, httplib: *httplib, threadspoof: *threadspoof}
+	return &FlagOptions{stage: *stage, sleeptime: *sleeptime, jitter: *jitter, useragent: *useragent, uri: *uri, customuri: *customuri, customuriGET: *customuriGET, customuriPOST: *customuriPOST, beacon_PE: *beacon_PE, processinject_min_alloc: *processinject_min_alloc, Post_EX_Process_Name: *Post_EX_Process_Name, metadata: *metadata, injector: *injector, Host: *Host, Profile: *Profile, ProfilePath: *ProfilePath, outFile: *outFile, custom_cert: *custom_cert, cert_password: *cert_password, CDN: *CDN, CDN_Value: *CDN_Value, Yaml: *Yaml, Datajitter: *Datajitter, Keylogger: *Keylogger, Forwarder: *Forwarder, tasks_max_size: *tasks_max_size, tasks_proxy_max_size: *tasks_proxy_max_size, tasks_dns_proxy_max_size: *tasks_dns_proxy_max_size, syscall_method: *syscall_method, httplib: *httplib, threadspoof: *threadspoof, beacongate: *beacongate}
 
 }
 
@@ -249,6 +252,7 @@ func main() {
 		opt.syscall_method = c.Syscall_method
 		opt.httplib = c.Httplib
 		opt.threadspoof = c.Threadspoof
+		opt.beacongate = c.BeaconGate
 	}
 	if opt.outFile == "" {
 		log.Fatal("Error: Please provide a file name to save the profile into")
@@ -263,5 +267,5 @@ func main() {
 		log.Fatal("Error: When using CustomuriGET/CustomuriPOST, both must be sepecified")
 	}
 	fmt.Println(c.TasksMaxSize)
-	Loader.GenerateOptions(opt.stage, opt.sleeptime, opt.jitter, opt.useragent, opt.uri, opt.customuri, opt.customuriGET, opt.customuriPOST, opt.beacon_PE, opt.processinject_min_alloc, opt.Post_EX_Process_Name, opt.metadata, opt.injector, opt.Host, opt.Profile, opt.ProfilePath, opt.outFile, opt.custom_cert, opt.cert_password, opt.CDN, opt.CDN_Value, opt.Datajitter, opt.Keylogger, opt.Forwarder, opt.tasks_max_size, opt.tasks_proxy_max_size, opt.tasks_dns_proxy_max_size, opt.syscall_method, opt.httplib, opt.threadspoof)
+	Loader.GenerateOptions(opt.stage, opt.sleeptime, opt.jitter, opt.useragent, opt.uri, opt.customuri, opt.customuriGET, opt.customuriPOST, opt.beacon_PE, opt.processinject_min_alloc, opt.Post_EX_Process_Name, opt.metadata, opt.injector, opt.Host, opt.Profile, opt.ProfilePath, opt.outFile, opt.custom_cert, opt.cert_password, opt.CDN, opt.CDN_Value, opt.Datajitter, opt.Keylogger, opt.Forwarder, opt.tasks_max_size, opt.tasks_proxy_max_size, opt.tasks_dns_proxy_max_size, opt.syscall_method, opt.httplib, opt.threadspoof, opt.beacongate)
 }

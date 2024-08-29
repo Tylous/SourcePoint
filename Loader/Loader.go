@@ -34,6 +34,7 @@ type FlagOptions struct {
 	tasks_max_size           string
 	tasks_proxy_max_size     string
 	tasks_dns_proxy_max_size string
+	beacongate               string
 }
 
 type Beacon_Com struct {
@@ -67,7 +68,7 @@ type Beacon_SSL struct {
 var num_Profile int
 var Post bool
 
-func GenerateOptions(stage, sleeptime, jitter, useragent, uri, customuri, customuriGET, customuriPOST, beacon_PE, processinject_min_alloc, Post_EX_Process_Name, metadata, injector, Host, Profile, ProfilePath, outFile, custom_cert, cert_password, CDN, CDN_Value, datajitter, Keylogger string, Forwarder bool, tasks_max_size string, tasks_proxy_max_size string, tasks_dns_proxy_max_size string, syscall_method string, httplib string, ThreadSpoof bool) {
+func GenerateOptions(stage, sleeptime, jitter, useragent, uri, customuri, customuriGET, customuriPOST, beacon_PE, processinject_min_alloc, Post_EX_Process_Name, metadata, injector, Host, Profile, ProfilePath, outFile, custom_cert, cert_password, CDN, CDN_Value, datajitter, Keylogger string, Forwarder bool, tasks_max_size string, tasks_proxy_max_size string, tasks_dns_proxy_max_size string, syscall_method string, httplib string, ThreadSpoof bool, beacongate string) {
 	Beacon_Com := &Beacon_Com{}
 	Beacon_Stage_p1 := &Beacon_Stage_p1{}
 	Beacon_Stage_p2 := &Beacon_Stage_p2{}
@@ -83,7 +84,7 @@ func GenerateOptions(stage, sleeptime, jitter, useragent, uri, customuri, custom
 	HostStageMessage, Beacon_Com.Variables = GenerateComunication(stage, sleeptime, jitter, useragent, datajitter, tasks_max_size, tasks_proxy_max_size, tasks_dns_proxy_max_size, httplib)
 	Beacon_PostEX.Variables = GeneratePostProcessName(Post_EX_Process_Name, Keylogger, ThreadSpoof)
 	Beacon_GETPOST.Variables = GenerateHTTPVaribles(Host, metadata, uri, customuri, customuriGET, customuriPOST, CDN, CDN_Value, Profile, Forwarder)
-	Beacon_Stage_p1.Variables, Beacon_Stage_p2.Variables, syscall_method = GeneratePE(beacon_PE, syscall_method)
+	Beacon_Stage_p1.Variables, Beacon_Stage_p2.Variables, syscall_method = GeneratePE(beacon_PE, syscall_method, beacongate)
 	Process_Inject.Variables = GenerateProcessInject(processinject_min_alloc, injector)
 	Beacon_GETPOST_Profile.Variables, Beacon_SSL.Variables = GenerateProfile(Profile, CDN, CDN_Value, cert_password, custom_cert, ProfilePath, Host)
 	fmt.Println("[*] Building Profile...")
@@ -321,7 +322,7 @@ func GenerateHTTPVaribles(Host, metadata, uri, customuri, customuriGET, customur
 	return Beacon_GETPOST.Variables
 }
 
-func GeneratePE(beacon_PE string, syscall_method string) (map[string]string, map[string]string, string) {
+func GeneratePE(beacon_PE string, syscall_method string, beacongate string) (map[string]string, map[string]string, string) {
 	Beacon_Stage_p1 := &Beacon_Stage_p1{}
 	Beacon_Stage_p1.Variables = make(map[string]string)
 
@@ -356,6 +357,43 @@ func GeneratePE(beacon_PE string, syscall_method string) (map[string]string, map
 		}
 		Beacon_Stage_p2.Variables["pe"] = Struct.Peclone_list[(PE_Num - 1)]
 	}
+
+	if beacongate == "" {
+		Beacon_Stage_p1.Variables["beacongate"] = "None;"
+	} else if beacongate == "All" || beacongate == "Comms" || beacongate == "Core" || beacongate == "Cleanup" {
+		Beacon_Stage_p1.Variables["beacongate"] = beacongate + ";"
+	} else {
+		// Handle specific APIs
+		apis := strings.Split(beacongate, ",")
+		validAPIs := map[string]bool{
+			"InternetOpenA": true, "InternetConnectA": true, "CloseHandle": true,
+			"CreateFileMapping": true, "CreateRemoteThread": true, "CreateThread": true,
+			"DuplicateHandle": true, "GetThreadContext": true, "MapViewOfFile": true,
+			"OpenProcess": true, "OpenThread": true, "ReadProcessMemory": true,
+			"ResumeThread": true, "SetThreadContext": true, "UnmapViewOfFile": true,
+			"VirtualAlloc": true, "VirtualAllocEx": true, "VirtualFree": true,
+			"VirtualProtect": true, "VirtualProtectEx": true, "VirtualQuery": true,
+			"WriteProcessMemory": true, "ExitThread": true,
+		}
+
+		var validatedAPIs []string
+		for _, api := range apis {
+			api = strings.TrimSpace(api)
+			if validAPIs[api] {
+				validatedAPIs = append(validatedAPIs, api)
+			} else {
+				fmt.Printf("[!] Warning: Invalid API '%s' will not be included in beacongate.\n", api)
+			}
+		}
+
+		if len(validatedAPIs) > 0 {
+			Beacon_Stage_p1.Variables["beacongate"] = strings.Join(validatedAPIs, ";\n        ") + ";"
+		} else {
+			fmt.Println("[!] Warning: Invalid beacongate input. Reverting to 'None'.")
+			Beacon_Stage_p1.Variables["beacongate"] = "None;"
+		}
+	}
+
 	return Beacon_Stage_p1.Variables, Beacon_Stage_p2.Variables, syscall_method
 }
 
@@ -415,7 +453,7 @@ func GenerateProfile(Profile, CDN, CDN_Value, cert_password, custom_cert, Profil
 				log.Fatal("Error: Please provide a Keystore value to use this profile")
 			}
 			Beacon_SSL.Variables["Cert"] = Struct.Cert[4]
-			Beacon_GETPOST_Profile.Variables["Profile"] = Struct.HTTP_GET_POST_list[(num_Profile - 1)]
+			Beacon_GETPOST_Profile.Variables["Profile"] = Struct.HTTP_GET_POST_list[num_Profile-1]
 		} else if num_Profile == 5 || num_Profile == 7 {
 			if cert_password == "" {
 				log.Fatal("Error: Please provide a Password value to use this profile")
