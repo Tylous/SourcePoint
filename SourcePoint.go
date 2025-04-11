@@ -44,6 +44,13 @@ type FlagOptions struct {
 	threadspoof              bool
 	Yaml                     string
 	beacongate               string
+	eaf_bypass               bool
+	rdll_use_syscalls        bool
+	copy_pe_header           bool
+	rdll_loader              string
+	transform_obfuscate      string
+	smartinject              bool
+	sleep_mask               bool
 }
 
 type conf struct {
@@ -79,6 +86,13 @@ type conf struct {
 	Httplib              string `yaml:"Httplib"`
 	Threadspoof          bool   `yaml:"ThreadSpoof"`
 	BeaconGate           string `yaml:"BeaconGate"`
+	EafBypass            bool   `yaml:"EafBypass"`
+	RdllUseSyscalls      bool   `yaml:"RdllUseSyscalls"`
+	Copy_PE_Header       bool   `yaml:"CopyPEHeader"`
+	RdllLoader           string `yaml:"RdllLoader"`
+	TransformObfuscate   string `yaml:"TransformObfuscate"`
+	SmartInject          bool   `yaml:"SmartInject"`
+	SleepMask            bool   `yaml:"SleepMask"`
 }
 
 func (c *conf) getConf(yamlfile string) *conf {
@@ -201,8 +215,20 @@ func options() *FlagOptions {
 	threadspoof := flag.Bool("ThreadSpoof", true, "Sets post-ex DLLs to spawn threads with a spoofed start address. These are generated randomly")
 	Yaml := flag.String("Yaml", "", "Path to the Yaml config file")
 	beacongate := flag.String("BeaconGate", "", "Specify beacon gate options (All, Comms, Core, Cleanup) or specific APIs")
+	eaf_bypass := flag.Bool("EafBypass", false, "Enable EAF Bypass")
+	rdll_use_syscalls := flag.Bool("RdllUseSyscalls", false, "Use Syscalls for Rdll")
+	copy_pe_header := flag.Bool("CopyPEHeader", false, "Copy PE Header")
+	rdll_loader := flag.String("RdllLoader", "PrependLoader", "Rdll Loader Options PrependLoader or StompLoader (Older method)")
+	transform_obfuscate := flag.String("TransformObfuscate", "", `Transform obfuscate options (comma-separated list):
+[*] lznt1
+[*] rc4 "64"
+[*] xor "32"
+[*] base64
+Example: "lznt1,rc4 \"64\",xor \"32\",base64"`)
+	smartinject := flag.Bool("SmartInject", false, "Enable Smart Inject")
+	sleep_mask := flag.Bool("SleepMask", true, "Enable Sleep Mask")
 	flag.Parse()
-	return &FlagOptions{stage: *stage, sleeptime: *sleeptime, jitter: *jitter, useragent: *useragent, uri: *uri, customuri: *customuri, customuriGET: *customuriGET, customuriPOST: *customuriPOST, beacon_PE: *beacon_PE, processinject_min_alloc: *processinject_min_alloc, Post_EX_Process_Name: *Post_EX_Process_Name, metadata: *metadata, injector: *injector, Host: *Host, Profile: *Profile, ProfilePath: *ProfilePath, outFile: *outFile, custom_cert: *custom_cert, cert_password: *cert_password, CDN: *CDN, CDN_Value: *CDN_Value, Yaml: *Yaml, Datajitter: *Datajitter, Keylogger: *Keylogger, Forwarder: *Forwarder, tasks_max_size: *tasks_max_size, tasks_proxy_max_size: *tasks_proxy_max_size, tasks_dns_proxy_max_size: *tasks_dns_proxy_max_size, syscall_method: *syscall_method, httplib: *httplib, threadspoof: *threadspoof, beacongate: *beacongate}
+	return &FlagOptions{stage: *stage, sleeptime: *sleeptime, jitter: *jitter, useragent: *useragent, uri: *uri, customuri: *customuri, customuriGET: *customuriGET, customuriPOST: *customuriPOST, beacon_PE: *beacon_PE, processinject_min_alloc: *processinject_min_alloc, Post_EX_Process_Name: *Post_EX_Process_Name, metadata: *metadata, injector: *injector, Host: *Host, Profile: *Profile, ProfilePath: *ProfilePath, outFile: *outFile, custom_cert: *custom_cert, cert_password: *cert_password, CDN: *CDN, CDN_Value: *CDN_Value, Yaml: *Yaml, Datajitter: *Datajitter, Keylogger: *Keylogger, Forwarder: *Forwarder, tasks_max_size: *tasks_max_size, tasks_proxy_max_size: *tasks_proxy_max_size, tasks_dns_proxy_max_size: *tasks_dns_proxy_max_size, syscall_method: *syscall_method, httplib: *httplib, threadspoof: *threadspoof, beacongate: *beacongate, eaf_bypass: *eaf_bypass, rdll_use_syscalls: *rdll_use_syscalls, copy_pe_header: *copy_pe_header, rdll_loader: *rdll_loader, transform_obfuscate: *transform_obfuscate, smartinject: *smartinject, sleep_mask: *sleep_mask}
 
 }
 
@@ -253,7 +279,14 @@ func main() {
 		opt.httplib = c.Httplib
 		opt.threadspoof = c.Threadspoof
 		opt.beacongate = c.BeaconGate
+		opt.eaf_bypass = c.EafBypass
+		opt.rdll_use_syscalls = c.RdllUseSyscalls
+		opt.copy_pe_header = c.Copy_PE_Header
+		opt.rdll_loader = c.RdllLoader
+		opt.transform_obfuscate = c.TransformObfuscate
+		opt.smartinject = c.SmartInject
 	}
+
 	if opt.outFile == "" {
 		log.Fatal("Error: Please provide a file name to save the profile into")
 	}
@@ -267,5 +300,5 @@ func main() {
 		log.Fatal("Error: When using CustomuriGET/CustomuriPOST, both must be sepecified")
 	}
 	fmt.Println(c.TasksMaxSize)
-	Loader.GenerateOptions(opt.stage, opt.sleeptime, opt.jitter, opt.useragent, opt.uri, opt.customuri, opt.customuriGET, opt.customuriPOST, opt.beacon_PE, opt.processinject_min_alloc, opt.Post_EX_Process_Name, opt.metadata, opt.injector, opt.Host, opt.Profile, opt.ProfilePath, opt.outFile, opt.custom_cert, opt.cert_password, opt.CDN, opt.CDN_Value, opt.Datajitter, opt.Keylogger, opt.Forwarder, opt.tasks_max_size, opt.tasks_proxy_max_size, opt.tasks_dns_proxy_max_size, opt.syscall_method, opt.httplib, opt.threadspoof, opt.beacongate)
+	Loader.GenerateOptions(opt.stage, opt.sleeptime, opt.jitter, opt.useragent, opt.uri, opt.customuri, opt.customuriGET, opt.customuriPOST, opt.beacon_PE, opt.processinject_min_alloc, opt.Post_EX_Process_Name, opt.metadata, opt.injector, opt.Host, opt.Profile, opt.ProfilePath, opt.outFile, opt.custom_cert, opt.cert_password, opt.CDN, opt.CDN_Value, opt.Datajitter, opt.Keylogger, opt.Forwarder, opt.tasks_max_size, opt.tasks_proxy_max_size, opt.tasks_dns_proxy_max_size, opt.syscall_method, opt.httplib, opt.threadspoof, opt.beacongate, opt.eaf_bypass, opt.rdll_use_syscalls, opt.copy_pe_header, opt.rdll_loader, opt.transform_obfuscate, opt.smartinject, opt.sleep_mask)
 }
