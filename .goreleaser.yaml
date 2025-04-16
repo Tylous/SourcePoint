@@ -44,6 +44,3 @@ changelog:
       - "^test:"
       - '.gitignore'
       - '.goreleaser.yaml'
-      - 'build/'
-      - 'dist/'
-      
