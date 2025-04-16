@@ -34,6 +34,14 @@ type FlagOptions struct {
 	tasks_max_size           string
 	tasks_proxy_max_size     string
 	tasks_dns_proxy_max_size string
+	beacongate               string
+	eaf_bypass               bool
+	rdll_use_syscalls        bool
+	copy_pe_header           bool
+	rdll_loader              string
+	transform_obfuscate      string
+	smartinject              bool
+	sleep_mask               bool
 }
 
 type Beacon_Com struct {
@@ -67,7 +75,7 @@ type Beacon_SSL struct {
 var num_Profile int
 var Post bool
 
-func GenerateOptions(stage, sleeptime, jitter, useragent, uri, customuri, customuriGET, customuriPOST, beacon_PE, processinject_min_alloc, Post_EX_Process_Name, metadata, injector, Host, Profile, ProfilePath, outFile, custom_cert, cert_password, CDN, CDN_Value, datajitter, Keylogger string, Forwarder bool, tasks_max_size string, tasks_proxy_max_size string, tasks_dns_proxy_max_size string, syscall_method string, httplib string, ThreadSpoof bool) {
+func GenerateOptions(stage, sleeptime, jitter, useragent, uri, customuri, customuriGET, customuriPOST, beacon_PE, processinject_min_alloc, Post_EX_Process_Name, metadata, injector, Host, Profile, ProfilePath, outFile, custom_cert, cert_password, CDN, CDN_Value, datajitter, Keylogger string, Forwarder bool, tasks_max_size string, tasks_proxy_max_size string, tasks_dns_proxy_max_size string, syscall_method string, httplib string, ThreadSpoof bool, beacongate string, eaf_bypass bool, rdll_use_syscalls bool, copy_pe_header bool, rdll_loader string, transform_obfuscate string, smartinject bool, sleep_mask bool) {
 	Beacon_Com := &Beacon_Com{}
 	Beacon_Stage_p1 := &Beacon_Stage_p1{}
 	Beacon_Stage_p2 := &Beacon_Stage_p2{}
@@ -83,7 +91,7 @@ func GenerateOptions(stage, sleeptime, jitter, useragent, uri, customuri, custom
 	HostStageMessage, Beacon_Com.Variables = GenerateComunication(stage, sleeptime, jitter, useragent, datajitter, tasks_max_size, tasks_proxy_max_size, tasks_dns_proxy_max_size, httplib)
 	Beacon_PostEX.Variables = GeneratePostProcessName(Post_EX_Process_Name, Keylogger, ThreadSpoof)
 	Beacon_GETPOST.Variables = GenerateHTTPVaribles(Host, metadata, uri, customuri, customuriGET, customuriPOST, CDN, CDN_Value, Profile, Forwarder)
-	Beacon_Stage_p1.Variables, Beacon_Stage_p2.Variables, syscall_method = GeneratePE(beacon_PE, syscall_method)
+	Beacon_Stage_p1.Variables, Beacon_Stage_p2.Variables, syscall_method = GeneratePE(beacon_PE, syscall_method, beacongate, eaf_bypass, rdll_use_syscalls, copy_pe_header, rdll_loader, transform_obfuscate, smartinject, sleep_mask)
 	Process_Inject.Variables = GenerateProcessInject(processinject_min_alloc, injector)
 	Beacon_GETPOST_Profile.Variables, Beacon_SSL.Variables = GenerateProfile(Profile, CDN, CDN_Value, cert_password, custom_cert, ProfilePath, Host)
 	fmt.Println("[*] Building Profile...")
@@ -321,7 +329,7 @@ func GenerateHTTPVaribles(Host, metadata, uri, customuri, customuriGET, customur
 	return Beacon_GETPOST.Variables
 }
 
-func GeneratePE(beacon_PE string, syscall_method string) (map[string]string, map[string]string, string) {
+func GeneratePE(beacon_PE string, syscall_method string, beacongate string, eaf_bypass bool, rdll_use_syscalls bool, copy_pe_header bool, rdll_loader string, transform_obfuscate string, smartinject bool, sleep_mask bool) (map[string]string, map[string]string, string) {
 	Beacon_Stage_p1 := &Beacon_Stage_p1{}
 	Beacon_Stage_p1.Variables = make(map[string]string)
 
@@ -340,10 +348,66 @@ func GeneratePE(beacon_PE string, syscall_method string) (map[string]string, map
 	} else {
 		log.Fatal("Error: Please provide a valid Syscall Method")
 	}
-
+	if rdll_loader == "PrependLoader" {
+		Beacon_Stage_p1.Variables["rdll_loader"] = "PrependLoader"
+	} else if rdll_loader == "StompLoader" {
+		Beacon_Stage_p1.Variables["rdll_loader"] = "StompLoader"
+	} else {
+		log.Fatal("Error: Please provide a valid Rdll Loader option")
+	}
+	// Set default value for eaf_bypass
+	if eaf_bypass == true {
+		Beacon_Stage_p1.Variables["eaf_bypass"] = "true"
+	} else {
+		Beacon_Stage_p1.Variables["eaf_bypass"] = "false"
+	}
+	if rdll_use_syscalls == true {
+		Beacon_Stage_p1.Variables["rdll_use_syscalls"] = "true"
+	} else {
+		Beacon_Stage_p1.Variables["rdll_use_syscalls"] = "false"
+	}
+	if copy_pe_header == true {
+		Beacon_Stage_p1.Variables["copy_pe_header"] = "true"
+	} else {
+		Beacon_Stage_p1.Variables["copy_pe_header"] = "false"
+	}
+	if smartinject == true {
+		Beacon_Stage_p1.Variables["smartinject"] = "true"
+	} else {
+		Beacon_Stage_p1.Variables["smartinject"] = "false"
+	}
+	if sleep_mask == true {
+		Beacon_Stage_p1.Variables["sleep_mask"] = "true"
+	} else {
+		Beacon_Stage_p1.Variables["sleep_mask"] = "false"
+	}
 	gen_number, _ := strconv.Atoi(Utils.GenerateNumer(0, 6))
 	Beacon_Stage_p1.Variables["magic_mz_x64"] = Struct.Magic_PE[gen_number]
 	Beacon_Stage_p1.Variables["magic_pe"] = strings.ToUpper(Utils.GenerateSingleValue(2))
+
+	// Handle transform_obfuscate
+	if transform_obfuscate != "" {
+		// Split the transform_obfuscate string by commas
+		obfuscateMethods := strings.Split(transform_obfuscate, ",")
+		var formattedMethods []string
+		
+		for _, method := range obfuscateMethods {
+			method = strings.TrimSpace(method)
+			// Check if the method has a parameter (like rc4 "64")
+			if strings.Contains(method, " ") {
+				// Method with parameter
+				formattedMethods = append(formattedMethods, "    "+method+";")
+			} else {
+				// Method without parameter
+				formattedMethods = append(formattedMethods, "    "+method+";")
+			}
+		}
+		
+		// Join the methods with newlines
+		Beacon_Stage_p1.Variables["transform_obfuscate"] = "transform-obfuscate {\n" + strings.Join(formattedMethods, "\n") + "\n}"
+	} else {
+		Beacon_Stage_p1.Variables["transform_obfuscate"] = ""
+	}
 
 	if beacon_PE == "" {
 		PE_Num, _ := strconv.Atoi(Utils.GenerateNumer(0, 30))
@@ -356,6 +420,43 @@ func GeneratePE(beacon_PE string, syscall_method string) (map[string]string, map
 		}
 		Beacon_Stage_p2.Variables["pe"] = Struct.Peclone_list[(PE_Num - 1)]
 	}
+
+	if beacongate == "" {
+		Beacon_Stage_p1.Variables["beacongate"] = "None;"
+	} else if beacongate == "All" || beacongate == "Comms" || beacongate == "Core" || beacongate == "Cleanup" {
+		Beacon_Stage_p1.Variables["beacongate"] = beacongate + ";"
+	} else {
+		// Handle specific APIs
+		apis := strings.Split(beacongate, ",")
+		validAPIs := map[string]bool{
+			"InternetOpenA": true, "InternetConnectA": true, "CloseHandle": true,
+			"CreateFileMapping": true, "CreateRemoteThread": true, "CreateThread": true,
+			"DuplicateHandle": true, "GetThreadContext": true, "MapViewOfFile": true,
+			"OpenProcess": true, "OpenThread": true, "ReadProcessMemory": true,
+			"ResumeThread": true, "SetThreadContext": true, "UnmapViewOfFile": true,
+			"VirtualAlloc": true, "VirtualAllocEx": true, "VirtualFree": true,
+			"VirtualProtect": true, "VirtualProtectEx": true, "VirtualQuery": true,
+			"WriteProcessMemory": true, "ExitThread": true,
+		}
+
+		var validatedAPIs []string
+		for _, api := range apis {
+			api = strings.TrimSpace(api)
+			if validAPIs[api] {
+				validatedAPIs = append(validatedAPIs, api)
+			} else {
+				fmt.Printf("[!] Warning: Invalid API '%s' will not be included in beacongate.\n", api)
+			}
+		}
+
+		if len(validatedAPIs) > 0 {
+			Beacon_Stage_p1.Variables["beacongate"] = strings.Join(validatedAPIs, ";\n        ") + ";"
+		} else {
+			fmt.Println("[!] Warning: Invalid beacongate input. Reverting to 'None'.")
+			Beacon_Stage_p1.Variables["beacongate"] = "None;"
+		}
+	}
+
 	return Beacon_Stage_p1.Variables, Beacon_Stage_p2.Variables, syscall_method
 }
 
@@ -374,6 +475,7 @@ func GenerateProcessInject(processinject_min_alloc, injector string) map[string]
 		}
 	}
 	Process_Inject.Variables["ThreadStartNum"] = Utils.GenerateNumer(500, 2500)
+	Process_Inject.Variables["ThreadStartNumv2"] = Utils.GenerateNumer(500, 2500)
 	if injector == "NtMapViewOfSection" {
 		Process_Inject.Variables["injector"] = injector
 	} else if injector == "VirtualAllocEx" {
@@ -415,7 +517,7 @@ func GenerateProfile(Profile, CDN, CDN_Value, cert_password, custom_cert, Profil
 				log.Fatal("Error: Please provide a Keystore value to use this profile")
 			}
 			Beacon_SSL.Variables["Cert"] = Struct.Cert[4]
-			Beacon_GETPOST_Profile.Variables["Profile"] = Struct.HTTP_GET_POST_list[(num_Profile - 1)]
+			Beacon_GETPOST_Profile.Variables["Profile"] = Struct.HTTP_GET_POST_list[num_Profile-1]
 		} else if num_Profile == 5 || num_Profile == 7 {
 			if cert_password == "" {
 				log.Fatal("Error: Please provide a Password value to use this profile")

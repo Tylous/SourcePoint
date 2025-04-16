@@ -573,7 +573,7 @@ header "X-Via" "haproxy-www-w6k7";
 </div>
 
 <div id=\"notifications_dismiss_banner\" class=\"banner seafoam_green_bg hidden\">
-	We strongly recommend enabling desktop notifications if you’ll be using Slack on this computer.		<span class=\"inline_block no_wrap\">
+	We strongly recommend enabling desktop notifications if you'll be using Slack on this computer.		<span class=\"inline_block no_wrap\">
 		<button type=\"button\" class=\"btn_link\" onclick=\"TS.ui.banner.close(); TS.ui.banner.growlsPermissionPrompt();\">Enable notifications</button> •
 		<button type=\"button\" class=\"btn_link\" onclick=\"TS.ui.banner.close()\">Ask me next time</button> •
 		<button type=\"button\" class=\"btn_link\" onclick=\"TS.ui.banner.closeNagAndSetCookie()\">Never ask again on this computer</button>
@@ -1321,8 +1321,10 @@ stage {
 	set stomppe "true";
 	set cleanup "true";
 	set userwx "false";
-	set smartinject "true";
-
+	set smartinject "{{.Variables.smartinject}}";
+	beacon_gate {
+	    {{.Variables.beacongate}}
+	}
 	set syscall_method "{{.Variables.syscall_method}}"; #### needs a varible
 	###will change down the road but 32-bit shouldn't be used that much
 	set magic_mz_x86 "MZRE";
@@ -1331,7 +1333,12 @@ stage {
 
 	#TCP and SMB beacons will obfuscate themselves while they wait for a new connection.
 	#They will also obfuscate themselves while they wait to read information from their parent Beacon.
-	set sleep_mask "true";
+	set sleep_mask {{.Variables.sleep_mask}};
+	set eaf_bypass "{{.Variables.eaf_bypass}}";
+	set rdll_use_syscalls "{{.Variables.rdll_use_syscalls}}";
+	set copy_pe_header "{{.Variables.copy_pe_header}}";
+	set rdll_loader "{{.Variables.rdll_loader}}";
+	{{.Variables.transform_obfuscate}}
 	`
 }
 func Beacon_Stage_p2_Stuct() string {
@@ -1339,6 +1346,7 @@ func Beacon_Stage_p2_Stuct() string {
 	{{.Variables.pe}}
 	`
 }
+
 func Beacon_GETPOST_Profile_Struct() string {
 	return `
 	{{.Variables.Profile}}
@@ -1579,6 +1587,7 @@ process-inject {
 
     # specify how we execute code in the remote process
     execute {
+	    ObfSetThreadContext "ntdll!TpReleaseCleanupGroupMembers+0x{{.Variables.ThreadStartNumv2}}";
 		CreateThread "ntdll.dll!RtlUserThreadStart+0x{{.Variables.ThreadStartNum}}";
         NtQueueApcThread-s;
         SetThreadContext;

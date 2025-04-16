@@ -35,6 +35,8 @@ $go build SourcePoint.go
 Usage of ./SourcePoint:
   -Allocation string
         Minimum amount of memory to request for injected content (must be higher than 4096)
+  -BeaconGate string
+        Specify beacon gate options (All, Comms, Core, Cleanup) or specific APIs
   -CDN string
         CDN cookie name (typically used for AzureEdge profiles)
   -CDN-Value string
