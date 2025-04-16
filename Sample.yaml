@@ -3,17 +3,17 @@ Host: "acme-email.com"
 Keystore: 
 Password: 
 Metadata: "netbios"
-Injector: "NtMapViewOfSection"
+Injector: "VirtualAllocEx"
 Outfile: "acme.profile"
-PE_Clone: 23
+PE_Clone: 20
 Profile: 2
 Allocation: 5312
 Jitter: 30
 Debug: true
 Sleep: 35
 Uri: 3
-Useragent: "Win10Edge"
-Post-EX Processname: 8
+Useragent: "Mac"
+Post-EX Processname: 11
 Datajitter: 40
 Keylogger: "SetWindowsHookEx"
 Customuri: 
@@ -38,3 +38,4 @@ TransformObfuscate: "lznt1,xor \"32\""
 SmartInject: False
 BeaconGate: "All"
 SleepMask: False
+

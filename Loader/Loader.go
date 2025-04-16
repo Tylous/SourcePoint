@@ -390,7 +390,7 @@ func GeneratePE(beacon_PE string, syscall_method string, beacongate string, eaf_
 		// Split the transform_obfuscate string by commas
 		obfuscateMethods := strings.Split(transform_obfuscate, ",")
 		var formattedMethods []string
-		
+
 		for _, method := range obfuscateMethods {
 			method = strings.TrimSpace(method)
 			// Check if the method has a parameter (like rc4 "64")
@@ -402,7 +402,7 @@ func GeneratePE(beacon_PE string, syscall_method string, beacongate string, eaf_
 				formattedMethods = append(formattedMethods, "    "+method+";")
 			}
 		}
-		
+
 		// Join the methods with newlines
 		Beacon_Stage_p1.Variables["transform_obfuscate"] = "transform-obfuscate {\n" + strings.Join(formattedMethods, "\n") + "\n}"
 	} else {

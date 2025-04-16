@@ -246,9 +246,6 @@ func main() {
 	var c conf
 	if opt.Yaml != "" {
 		c.getConf(opt.Yaml)
-	}
-
-	if opt.Yaml != "" {
 		opt.stage = c.Stage
 		opt.Post_EX_Process_Name = c.Post_EX_Process_Name
 		opt.Host = c.Host
@@ -285,6 +282,7 @@ func main() {
 		opt.rdll_loader = c.RdllLoader
 		opt.transform_obfuscate = c.TransformObfuscate
 		opt.smartinject = c.SmartInject
+		opt.sleep_mask = c.SleepMask
 	}
 
 	if opt.outFile == "" {
