@@ -1346,7 +1346,7 @@ stage {
 
 	#TCP and SMB beacons will obfuscate themselves while they wait for a new connection.
 	#They will also obfuscate themselves while they wait to read information from their parent Beacon.
-	set sleep_mask {{.Variables.sleep_mask}};
+	set sleep_mask "{{.Variables.sleep_mask}}";
 	set eaf_bypass "{{.Variables.eaf_bypass}}";
 	set rdll_use_syscalls "{{.Variables.rdll_use_syscalls}}";
 	set copy_pe_header "{{.Variables.copy_pe_header}}";
