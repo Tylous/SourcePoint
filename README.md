@@ -34,142 +34,161 @@ $go build SourcePoint.go
                                                                                                                         
 Usage of ./SourcePoint:
   -Allocation string
-        Minimum amount of memory to request for injected content (must be higher than 4096)
+    	Minimum amount of memory to request for injected content (must be higher than 4096)
   -BeaconGate string
-        Specify beacon gate options (All, Comms, Core, Cleanup) or specific APIs
+    	Specify beacon gate options (All, Comms, Core, Cleanup) or specific APIs
   -CDN string
-        CDN cookie name (typically used for AzureEdge profiles)
+    	CDN cookie name (typically used for AzureEdge profiles)
   -CDN-Value string
-        CDN cookie value (typically used for AzureEdge profiles)
+    	CDN cookie value (typically used for AzureEdge profiles)
+  -CopyPEHeader
+    	Copy PE Header
   -Customuri string
-        The base URI for custom HTTP GET/POST profile - Cannot be used with CustomuriGET or CustomuriPOST
+    	The base URI for custom HTTP GET/POST profile - Cannot be used with CustomuriGET or CustomuriPOST
   -CustomuriGET string
-        The base URI for custom HTTP GET profile - Must be used with CustomuriPOST
+    	The base URI for custom HTTP GET profile - Must be used with CustomuriPOST
   -CustomuriPOST string
-        The base URI for custom HTTP POST profile - Must be used with CustomuriGET
+    	The base URI for custom HTTP POST profile - Must be used with CustomuriGET
   -Datajitter string
-        Appends a value to HTTP-Get and HTTP-Post server output (default "50")
+    	Appends a value to HTTP-Get and HTTP-Post server output (default "50")
+  -EafBypass
+    	Enable EAF Bypass
   -Forwarder
-        Enabled the X-forwarded-For header (Good for when your C2 is behind a redirector)
+    	Enabled the X-forwarded-For header (Good for when your C2 is behind a redirector)
   -Host string
-        Team server domain name
+    	Team server domain name
   -Httplib string
-        Select the default HTTP Beacon library:
-        [*] wininet
-        [*] winhttp' (default "winhttp")
+    	Select the default HTTP Beacon library:
+    	[*] wininet
+    	[*] winhttp' (default "winhttp")
   -Injector string
-        Select the preferred method to allocate memory in the remote process:
-        [*] VirtualAllocEx (Great for cross architecture i.e x86 -> x64 and x64->x86)
-        [*] NtMapViewOfSection (A more stealthly option, however fails over to VirtualAllocEx, generating more events when it does)
+    	Select the preferred method to allocate memory in the remote process:
+    	[*] VirtualAllocEx (Great for cross architecture i.e x86 -> x64 and x64->x86)
+    	[*] NtMapViewOfSection (A more stealthly option, however fails over to VirtualAllocEx, generating more events when it does)
   -Jitter string
-        Jitter percentage for beacon call home
+    	Jitter percentage for beacon call home
   -Keylogger string
-        Select the preferred method the beacon will use to log keystrokes: 
-        [*] GetAsyncKeyState (Uses GetAsyncKeyState API (Separate DLL for x86/x64 process))
-        [*] SetWindowsHookEx (Uses SetWindowsHookEx API)
+    	Select the preferred method the beacon will use to log keystrokes: 
+    	[*] GetAsyncKeyState (Uses GetAsyncKeyState API (Separate DLL for x86/x64 process))
+    	[*] SetWindowsHookEx (Uses SetWindowsHookEx API)
   -Keystore string
-        SSL keystore name
+    	SSL keystore name
   -Metadata string
-        Specifies how to transform and embed metadata into the HTTP request:
-        [*] base64
-        [*] base64url
-        [*] netbios
-        [*] netbiosu (default "base64url")
+    	Specifies how to transform and embed metadata into the HTTP request:
+    	[*] base64
+    	[*] base64url
+    	[*] netbios
+    	[*] netbiosu (default "base64url")
   -Outfile string
-        Name of output file
+    	Name of output file
   -PE_Clone string
-        PE file beacon will mimic (Use the number):
-        [1] ActivationManager.dll
-        [2] audioeng.dll
-        [3] AzureSettingSyncProvider.dll
-        [4] BingMaps.dll
-        [5] DIAGCPL.dll
-        [6] EDGEHTML.dll
-        [7] FILEMGMT.dll
-        [8] FIREWALLCONTROLPANEL.dll
-        [9] GPSVC.dll
-        [10] gpupvdev.dll
-        [11] libcrypto.dll
-        [12] srvcli.dll
-        [13] srvsvc.dll
-        [14] Windows.Storage.Search.dll
-        [15] Windows.System.Diagnostics.dll
-        [16] Windows.System.Launcher.dll
-        [17] Windows.System.SystemManagement.dll
-        [18] Windows.UI.BioFeedback.dll
-        [19] Windows.UI.BlockedShutdown.dll
-        [20] Windows.UI.Core.TextInput.DLL
-        [21] winsqlite3.dll
-        [22] WMNetMgr.DLL
-        [23] wwanapi.dll
-        [24] WWANSVC.DLL
-        [25] wow64win.dll
-        [26] wow64.dll
-        [27] ctiuser.dll (Carbon Black's DLL)
-        [28] InProcessClient.dll (SentinelOne's DLL)
-        [29] umppc.dll (CrowdStrike's DLL)
-        [30] CyMemDef64.dll (Cylance's DLL)
-  -Password string
-        SSL certificate password
+    	PE file beacon will mimic (Use the number):
+    	[1] ActivationManager.dll
+    	[2] audioeng.dll
+    	[3] AzureSettingSyncProvider.dll
+    	[4] BingMaps.dll
+    	[5] DIAGCPL.dll
+    	[6] EDGEHTML.dll
+    	[7] FILEMGMT.dll
+    	[8] FIREWALLCONTROLPANEL.dll
+    	[9] GPSVC.dll
+    	[10] gpupvdev.dll
+    	[11] libcrypto.dll
+    	[12] srvcli.dll
+    	[13] srvsvc.dll
+    	[14] Windows.Storage.Search.dll
+    	[15] Windows.System.Diagnostics.dll
+    	[16] Windows.System.Launcher.dll
+    	[17] Windows.System.SystemManagement.dll
+    	[18] Windows.UI.BioFeedback.dll
+    	[19] Windows.UI.BlockedShutdown.dll
+    	[20] Windows.UI.Core.TextInput.DLL
+    	[21] winsqlite3.dll
+    	[22] WMNetMgr.DLL
+    	[23] wwanapi.dll
+    	[24] WWANSVC.DLL
+    	[25] wow64win.dll
+    	[26] wow64.dll
+    	[27] ctiuser.dll (Carbon Black's DLL)
+    	[28] InProcessClient.dll (SentinelOne's DLL)
+    	[29] umppc.dll (CrowdStrike's DLL)
+    	[30] CyMemDef64.dll (Cylance's DLL)
+***
+    	SSL certificate password
   -PostEX_Name string
-        File Post-Ex activities will spawn and inject into (Use the number):
-        [1] WerFault.exe
-        [2] WWAHost.exe
-        [3] choice.exe
-        [4] bootcfg.exe
-        [5] dtdump.exe
-        [6] expand.exe
-        [7] fsutil.exe
-        [8] gpupdate.exe
-        [9] gpresult.exe
-        [10] logman.exe
-        [11] mcbuilder.exe
-        [12] mtstocom.exe
-        [13] pcaui.exe
-        [14] powercfg.exe
-        [15] svchost.exe
+    	File Post-Ex activities will spawn and inject into (Use the number):
+    	[1] WerFault.exe
+    	[2] WWAHost.exe
+    	[3] choice.exe
+    	[4] bootcfg.exe
+    	[5] dtdump.exe
+    	[6] expand.exe
+    	[7] fsutil.exe
+    	[8] gpupdate.exe
+    	[9] gpresult.exe
+    	[10] logman.exe
+    	[11] mcbuilder.exe
+    	[12] mtstocom.exe
+    	[13] pcaui.exe
+    	[14] powercfg.exe
+    	[15] svchost.exe
   -Profile string
-        HTTP GET/POST profile (Use the number):
-        [1] Windowsupdate
-        [2] Slack
-        [3] Gotomeeting
-        [4] Outlook.Live
-        [5] Safebrowsing [Cloudfront Compatible]
-        [6] AzureEdge [AzureEdge Compatible]
-        [7] Field-Keyword [Cloudfront Compatible]
-        [8] Custom (Used with ProfilePath)
+    	HTTP GET/POST profile (Use the number):
+    	[1] Windowsupdate
+    	[2] Slack
+    	[3] Gotomeeting
+    	[4] Outlook.Live
+    	[5] Safebrowsing [Cloudfront Compatible]
+    	[6] AzureEdge [AzureEdge Compatible]
+    	[7] Field-Keyword [Cloudfront Compatible]
+    	[8] Custom (Used with ProfilePath)
   -ProfilePath string
-        Path of custom HTTP GET/POST profile...
+    	Path of custom HTTP GET/POST profile...
+  -RdllLoader string
+    	Rdll Loader Options PrependLoader or StompLoader (Older method) (default "PrependLoader")
+  -RdllUseSyscalls
+    	Use Syscalls for Rdll
   -Sleep string
-        Initial beacon sleep time
+    	Initial beacon sleep time
+  -SleepMask
+    	Enable Sleep Mask (default true)
+  -SmartInject
+    	Enable Smart Inject
   -Stage string
-        Disable host staging (Default: False) (default "false")
+    	Disable host staging (Default: False) (default "false")
   -Syscall string
-        Defines the ability to use direct/indirect system calls instead of the standard Windows API functions calls:
-        [*] None
-        [*] Direct
-        [*] Indirect (default "None")
+    	Defines the ability to use direct/indirect system calls instead of the standard Windows API functions calls:
+    	[*] None
+    	[*] Direct
+    	[*] Indirect (default "None")
   -TasksDnsProxyMaxSize string
-        The maximum size (in bytes) of proxy data to transfer via the DNS communication channel at a check in
+    	The maximum size (in bytes) of proxy data to transfer via the DNS communication channel at a check in
   -TasksMaxSize string
-        The maximum size (in bytes) of task(s) and proxy data that can be transferred through a communication channel at a check in
+    	The maximum size (in bytes) of task(s) and proxy data that can be transferred through a communication channel at a check in
   -TasksProxyMaxSize string
-        The maximum size (in bytes) of proxy data to transfer via the communication channel at a check in
+    	The maximum size (in bytes) of proxy data to transfer via the communication channel at a check in
   -ThreadSpoof
-        Sets post-ex DLLs to spawn threads with a spoofed start address. These are generated randomly (default true)
+    	Sets post-ex DLLs to spawn threads with a spoofed start address. These are generated randomly (default true)
+  -TransformObfuscate string
+    	Transform obfuscate options (comma-separated list):
+    	[*] lznt1
+    	[*] rc4 "64"
+    	[*] xor "32"
+    	[*] base64
+    	Example: "lznt1,rc4 \"64\",xor \"32\",base64"
   -Uri string
-        The number URIs a profile for beacons to choose from
+    	The number URIs a profile for beacons to choose from
   -Useragent string
-        UserAgent string for the beacon to use (Leave blank to randomly select one):
-        [*] Win10Chrome
-        [*] Win10Edge
-        [*] Win10IE
-        [*] Win10
-        [*] Win6.3
-        [*] Linux
-        [*] Mac
+    	UserAgent string for the beacon to use (Leave blank to randomly select one):
+    	[*] Win10Chrome
+    	[*] Win10Edge
+    	[*] Win10IE
+    	[*] Win10
+    	[*] Win6.3
+    	[*] Linux
+    	[*] Mac
   -Yaml string
-        Path to the Yaml config file
+    	Path to the Yaml config file
 ```
 
 
