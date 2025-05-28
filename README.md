@@ -265,29 +265,29 @@ By combining these options into one profile you can create a highly effective be
 ```
 Stage: "False"
 Host: "acme-email.com"
-Keystore: "acme-email.com.store"
-Password: "Password"
+Keystore: 
+Password: 
 Metadata: "netbios"
 Injector: "VirtualAllocEx"
 Outfile: "acme.profile"
 PE_Clone: 20
-Profile: 4
+Profile: 2
 Allocation: 5312
 Jitter: 30
 Debug: true
 Sleep: 35
 Uri: 3
-Useragent:  "Mac"
+Useragent: "Mac"
 Post-EX Processname: 11
 Datajitter: 40
 Keylogger: "SetWindowsHookEx"
 Customuri: 
 CDN:
 CDN_Value: 
-ProfilePath: 
+ProfilePath:
 Syscall_method:
-Httplib:
-ThreadSpoof: true
+Httplib: 
+ThreadSpoof: True
 Customuri: 
 CustomuriGET: 
 CustomuriPOST:
@@ -295,6 +295,14 @@ Forwarder: False
 TasksMaxSize: 
 TasksProxyMaxSize:
 TasksDnsProxyMaxSize: 
+EafBypass: True
+RdllUseSyscalls: True
+CopyPEHeader: True
+RdllLoader: "PrependLoader"
+TransformObfuscate: "lznt1,xor \"32\""
+SmartInject: False
+BeaconGate: "All"
+SleepMask: False
 ```
 
 
