@@ -75,7 +75,27 @@ type Beacon_SSL struct {
 var num_Profile int
 var Post bool
 
-func GenerateOptions(stage, sleeptime, jitter, useragent, uri, customuri, customuriGET, customuriPOST, beacon_PE, processinject_min_alloc, Post_EX_Process_Name, metadata, injector, Host, Profile, ProfilePath, outFile, custom_cert, cert_password, CDN, CDN_Value, datajitter, Keylogger string, Forwarder bool, tasks_max_size string, tasks_proxy_max_size string, tasks_dns_proxy_max_size string, syscall_method string, httplib string, ThreadSpoof bool, beacongate string, eaf_bypass bool, rdll_use_syscalls bool, copy_pe_header bool, rdll_loader string, transform_obfuscate string, smartinject bool, sleep_mask bool) {
+// validateNumber checks an operator-supplied numeric flag before it reaches the
+// profile. These values were written out unchecked, so "-Sleep abc" emitted
+// `set sleeptime "abc000"` and "-Jitter 150" emitted a jitter percentage
+// outside the permitted 0-99 range. Neither failed here: they failed when the
+// teamserver refused to load the profile, which is the worst time to find out.
+// A max of 0 means the flag has no meaningful upper bound.
+func validateNumber(flagName, value string, min, max int) {
+	n, err := strconv.Atoi(value)
+	if err != nil {
+		log.Fatalf("Error: %s must be a whole number, got %q", flagName, value)
+	}
+	if n < min {
+		log.Fatalf("Error: %s must be %d or greater, got %d", flagName, min, n)
+	}
+	if max > 0 && n > max {
+		log.Fatalf("Error: %s must be between %d and %d, got %d", flagName, min, max, n)
+	}
+}
+
+func GenerateOptions(stage, sleeptime, jitter, useragent, uri, customuri, customuriGET, customuriPOST, beacon_PE, processinject_min_alloc, Post_EX_Process_Name, metadata, injector, Host, Profile, ProfilePath, outFile, custom_cert, cert_password, CDN, CDN_Value, datajitter, Keylogger string, Forwarder bool, tasks_max_size string, tasks_proxy_max_size string, tasks_dns_proxy_max_size string, syscall_method string, httplib string, ThreadSpoof bool, beacongate string, eaf_bypass bool, rdll_use_syscalls bool, copy_pe_header bool, rdll_loader string, transform_obfuscate string, smartinject bool, sleep_mask bool, cs_version string) {
+	csv := ParseCSVersion(cs_version)
 	Beacon_Com := &Beacon_Com{}
 	Beacon_Stage_p1 := &Beacon_Stage_p1{}
 	Beacon_Stage_p2 := &Beacon_Stage_p2{}
@@ -89,17 +109,15 @@ func GenerateOptions(stage, sleeptime, jitter, useragent, uri, customuri, custom
 
 	fmt.Println("[*] Preparing Varibles...")
 	HostStageMessage, Beacon_Com.Variables = GenerateComunication(stage, sleeptime, jitter, useragent, datajitter, tasks_max_size, tasks_proxy_max_size, tasks_dns_proxy_max_size, httplib)
-	Beacon_PostEX.Variables = GeneratePostProcessName(Post_EX_Process_Name, Keylogger, ThreadSpoof)
+	Beacon_PostEX.Variables = GeneratePostProcessName(Post_EX_Process_Name, Keylogger, ThreadSpoof, smartinject)
 	Beacon_GETPOST.Variables = GenerateHTTPVaribles(Host, metadata, uri, customuri, customuriGET, customuriPOST, CDN, CDN_Value, Profile, Forwarder)
-	Beacon_Stage_p1.Variables, Beacon_Stage_p2.Variables, syscall_method = GeneratePE(beacon_PE, syscall_method, beacongate, eaf_bypass, rdll_use_syscalls, copy_pe_header, rdll_loader, transform_obfuscate, smartinject, sleep_mask)
+	Beacon_Stage_p1.Variables, Beacon_Stage_p2.Variables, syscall_method = GeneratePE(beacon_PE, syscall_method, beacongate, eaf_bypass, rdll_use_syscalls, copy_pe_header, rdll_loader, transform_obfuscate, sleep_mask, csv)
 	Process_Inject.Variables = GenerateProcessInject(processinject_min_alloc, injector)
 	Beacon_GETPOST_Profile.Variables, Beacon_SSL.Variables = GenerateProfile(Profile, CDN, CDN_Value, cert_password, custom_cert, ProfilePath, Host)
 	fmt.Println("[*] Building Profile...")
 	Build(custom_cert, cert_password, outFile, Beacon_Com, Beacon_Stage_p1, Beacon_Stage_p2, Beacon_Stage_p3, Process_Inject, Beacon_PostEX, Beacon_GETPOST, Beacon_GETPOST_Profile, Beacon_SSL)
 	fmt.Println(HostStageMessage)
-	PE := strings.Split(Beacon_Stage_p2.Variables["pe"], `;`)
-	PE_Name := strings.Split(PE[len(PE)-3], `"`)
-	fmt.Println("[*] Beacon DLL Spoofed To: " + PE_Name[1])
+	fmt.Println("[*] Beacon DLL Spoofed To: " + Beacon_Stage_p2.Variables["pe_name"])
 	PEX := strings.Split(Beacon_PostEX.Variables["Post_EX_Process_Name"], `sysnative\\`)
 	PEX_Name := PEX[1]
 	fmt.Println("[*] Post-Ex Process Name: " + PEX_Name[:(len(PEX_Name)-3)])
@@ -112,8 +130,13 @@ func GenerateOptions(stage, sleeptime, jitter, useragent, uri, customuri, custom
 	} else {
 		fmt.Println("[!] " + syscall_method + " syscall method selected")
 	}
-	Name, _ := strconv.Atoi(Profile)
-	fmt.Println("[*] Seleted Profile: " + Struct.Profile_Names[Name])
+	if csv.AtLeast(4, 13) {
+		fmt.Println("[!] Targeting Cobalt Strike " + csv.String() + ": omitting stage.rdll_loader and stage.name (removed in 4.13) and the PE clone image_size values (smaller than the current beacon)")
+	}
+	// num_Profile holds the resolved profile, including the one picked at
+	// random when -Profile was not supplied. Re-parsing the raw flag here meant
+	// a randomly selected profile always printed as an empty name.
+	fmt.Println("[*] Selected Profile: " + Struct.Profile_Names[num_Profile])
 	fmt.Println("[+] Profile Generated: " + outFile)
 	fmt.Println("[+] Happy Hacking")
 }
@@ -130,17 +153,21 @@ func GenerateComunication(stage, sleeptime, jitter, useragent, datajitter string
 		HostStageMessage = "[!] Host Staging Is Enabled - Staged Payloads Are Available But Your Beacon Payload Is Available To Anyone That Connects To Your Server To Request It"
 	}
 	if sleeptime != "" {
+		validateNumber("-Sleep", sleeptime, 0, 0)
 		Beacon_Com.Variables["sleep"] = sleeptime + "000"
 	} else if sleeptime == "" {
 		Beacon_Com.Variables["sleep"] = Utils.GenerateNumer(30, 75) + "000"
 	}
 	if jitter != "" {
+		// Cobalt Strike requires jitter to be a percentage in the range 0-99.
+		validateNumber("-Jitter", jitter, 0, 99)
 		Beacon_Com.Variables["jitter"] = jitter
 	}
 	if jitter == "" {
 		Beacon_Com.Variables["jitter"] = Utils.GenerateNumer(10, 40)
 	}
 	if datajitter != "" {
+		validateNumber("-Datajitter", datajitter, 0, 0)
 		Beacon_Com.Variables["datajitter"] = datajitter
 	}
 	if datajitter == "" {
@@ -148,24 +175,27 @@ func GenerateComunication(stage, sleeptime, jitter, useragent, datajitter string
 	}
 
 	if tasks_max_size != "" {
+		validateNumber("-TasksMaxSize", tasks_max_size, 1, 0)
 		Beacon_Com.Variables["tasks_max_size"] = tasks_max_size
 	} else {
 		Beacon_Com.Variables["tasks_max_size"] = "1048576"
 	}
 	if tasks_proxy_max_size != "" {
+		validateNumber("-TasksProxyMaxSize", tasks_proxy_max_size, 1, 0)
 		Beacon_Com.Variables["tasks_proxy_max_size"] = tasks_proxy_max_size
 	} else {
 		Beacon_Com.Variables["tasks_proxy_max_size"] = "921600"
 	}
 	if tasks_dns_proxy_max_size != "" {
+		validateNumber("-TasksDnsProxyMaxSize", tasks_dns_proxy_max_size, 1, 0)
 		Beacon_Com.Variables["tasks_dns_proxy_max_size"] = tasks_dns_proxy_max_size
 	} else {
 		Beacon_Com.Variables["tasks_dns_proxy_max_size"] = "71680"
 	}
-	SSH_Numb, _ := strconv.Atoi(Utils.GenerateNumer(0, 4))
+	SSH_Numb := Utils.RandIndex(len(Struct.SSH_Banner))
 	Beacon_Com.Variables["SSH_Banner"] = Struct.SSH_Banner[SSH_Numb]
 
-	pipe_number, _ := strconv.Atoi(Utils.GenerateNumer(0, 7))
+	pipe_number := Utils.RandIndex(len(Struct.Pipename_list))
 	Beacon_Com.Variables["pipename"] = Struct.Pipename_list[pipe_number] + Utils.GenerateNumer(3000, 9000)
 	Beacon_Com.Variables["pipename_stager"] = Struct.Pipename_list[pipe_number] + Utils.GenerateNumer(1000, 9000)
 	Beacon_Com.Variables["SSH_pipename"] = Struct.Pipename_list[pipe_number]
@@ -204,7 +234,7 @@ func GenerateComunication(stage, sleeptime, jitter, useragent, datajitter string
 		}
 	}
 	if useragent == "" {
-		num_agent, _ := strconv.Atoi(Utils.GenerateNumer(0, 64))
+		num_agent := Utils.RandIndex(len(Struct.Useragent_list))
 		Beacon_Com.Variables["useragent"] = Struct.Useragent_list[num_agent]
 
 	}
@@ -218,15 +248,27 @@ func GenerateComunication(stage, sleeptime, jitter, useragent, datajitter string
 	return HostStageMessage, Beacon_Com.Variables
 }
 
-func GeneratePostProcessName(Post_EX_Process_Name, Keylogger string, ThreadSpoof bool) map[string]string {
+func GeneratePostProcessName(Post_EX_Process_Name, Keylogger string, ThreadSpoof bool, smartinject bool) map[string]string {
 	Beacon_PostEX := &Beacon_PostEX{}
 	Beacon_PostEX.Variables = make(map[string]string)
+	// smartinject is a post-ex option. It used to be emitted into the stage
+	// block instead, where Cobalt Strike rejects it, while the post-ex copy was
+	// hardcoded to "true" - so -SmartInject drove the invalid one and had no
+	// effect on the profile that was actually meant to carry it.
+	if smartinject {
+		Beacon_PostEX.Variables["smartinject"] = "true"
+	} else {
+		Beacon_PostEX.Variables["smartinject"] = "false"
+	}
 	if Post_EX_Process_Name != "" {
-		num_PSPN, _ := strconv.Atoi(Post_EX_Process_Name)
+		num_PSPN, err := strconv.Atoi(Post_EX_Process_Name)
+		if err != nil || num_PSPN < 1 || num_PSPN > len(Struct.Post_EX_Process_Name) {
+			log.Fatalf("Error: PostEX_Name must be a number between 1 and %d", len(Struct.Post_EX_Process_Name))
+		}
 		Beacon_PostEX.Variables["Post_EX_Process_Name"] = Struct.Post_EX_Process_Name[(num_PSPN - 1)]
 	}
 	if Post_EX_Process_Name == "" {
-		num_Post_EX_Process_Name, _ := strconv.Atoi(Utils.GenerateNumer(0, 14))
+		num_Post_EX_Process_Name := Utils.RandIndex(len(Struct.Post_EX_Process_Name))
 		Beacon_PostEX.Variables["Post_EX_Process_Name"] = Struct.Post_EX_Process_Name[num_Post_EX_Process_Name]
 	}
 	if Keylogger == "GetAsyncKeyState" || Keylogger == "SetWindowsHookEx" {
@@ -234,10 +276,13 @@ func GeneratePostProcessName(Post_EX_Process_Name, Keylogger string, ThreadSpoof
 	} else if Keylogger == "" {
 		Beacon_PostEX.Variables["Keylogger"] = "SetWindowsHookEx"
 	} else {
+		// Previously an empty branch, which left the keylogger unset and
+		// emitted a profile Cobalt Strike rejects at load time.
+		log.Fatal("Error: Keylogger must be either GetAsyncKeyState or SetWindowsHookEx")
 	}
 
 	if ThreadSpoof == true {
-		threadhint_num, _ := strconv.Atoi(Utils.GenerateNumer(0, 8))
+		threadhint_num := Utils.RandIndex(len(Struct.Thread_list))
 		Beacon_PostEX.Variables["thread_hint"] = "set thread_hint \"" + Struct.Thread_list[(threadhint_num)] + Utils.GenHex() + "\";"
 	} else {
 		Beacon_PostEX.Variables["thread_hint"] = ""
@@ -251,9 +296,15 @@ func GenerateHTTPVaribles(Host, metadata, uri, customuri, customuriGET, customur
 	Beacon_GETPOST.Variables = make(map[string]string)
 	Beacon_GETPOST.Variables["Host"] = Host
 	if Profile == "" {
+		// Profiles 5-7 need a keystore/CDN and 8 needs a ProfilePath, so the
+		// random pick stays within the self-contained profiles.
 		num_Profile, _ = strconv.Atoi(Utils.GenerateNumer(1, 5))
 	} else {
-		num_Profile, _ = strconv.Atoi(Profile)
+		var err error
+		num_Profile, err = strconv.Atoi(Profile)
+		if err != nil || num_Profile < 1 || num_Profile >= len(Struct.Profile_Names) {
+			log.Fatalf("Error: Profile must be a number between 1 and %d", len(Struct.Profile_Names)-1)
+		}
 	}
 	if metadata == "base64" {
 		Beacon_GETPOST.Variables["metadata_mode"] = metadata
@@ -319,6 +370,14 @@ func GenerateHTTPVaribles(Host, metadata, uri, customuri, customuriGET, customur
 	Beacon_GETPOST.Variables["UValue"] = Utils.GenerateValue(6, 15)
 	Beacon_GETPOST.Variables["CSMValue"] = Utils.GenerateValue(6, 15)
 
+	// Stager URIs are generated per architecture, and deliberately not from
+	// UValue: UValue also appears in the beacon's own check-in traffic (the
+	// "U="/"REF=ID=" prepends and the wla42 cookie), so reusing it here would
+	// tie the staging request and the check-ins together with one shared
+	// token. Length is varied so the segment isn't a fixed-width tell.
+	Beacon_GETPOST.Variables["stager_x86"] = Utils.GenerateSingleValue(8 + Utils.RandIndex(5))
+	Beacon_GETPOST.Variables["stager_x64"] = Utils.GenerateSingleValue(8 + Utils.RandIndex(5))
+
 	//needs to be put stacic
 	if Forwarder == true {
 		Beacon_GETPOST.Variables["forward"] = "true"
@@ -329,7 +388,7 @@ func GenerateHTTPVaribles(Host, metadata, uri, customuri, customuriGET, customur
 	return Beacon_GETPOST.Variables
 }
 
-func GeneratePE(beacon_PE string, syscall_method string, beacongate string, eaf_bypass bool, rdll_use_syscalls bool, copy_pe_header bool, rdll_loader string, transform_obfuscate string, smartinject bool, sleep_mask bool) (map[string]string, map[string]string, string) {
+func GeneratePE(beacon_PE string, syscall_method string, beacongate string, eaf_bypass bool, rdll_use_syscalls bool, copy_pe_header bool, rdll_loader string, transform_obfuscate string, sleep_mask bool, csv CSVersion) (map[string]string, map[string]string, string) {
 	Beacon_Stage_p1 := &Beacon_Stage_p1{}
 	Beacon_Stage_p1.Variables = make(map[string]string)
 
@@ -348,12 +407,18 @@ func GeneratePE(beacon_PE string, syscall_method string, beacongate string, eaf_
 	} else {
 		log.Fatal("Error: Please provide a valid Syscall Method")
 	}
-	if rdll_loader == "PrependLoader" {
-		Beacon_Stage_p1.Variables["rdll_loader"] = "PrependLoader"
-	} else if rdll_loader == "StompLoader" {
-		Beacon_Stage_p1.Variables["rdll_loader"] = "StompLoader"
-	} else {
+	// The flag is validated regardless of target version, so a typo is still an
+	// error rather than being silently discarded along with the directive.
+	if rdll_loader != "PrependLoader" && rdll_loader != "StompLoader" {
 		log.Fatal("Error: Please provide a valid Rdll Loader option")
+	}
+	if csv.AtLeast(4, 13) {
+		// Cobalt Strike 4.13 removed stage.rdll_loader entirely: c2lint rejects
+		// it on both PrependLoader and StompLoader, so this is not the earlier
+		// stomp loader deprecation.
+		Beacon_Stage_p1.Variables["rdll_loader"] = ""
+	} else {
+		Beacon_Stage_p1.Variables["rdll_loader"] = `set rdll_loader "` + rdll_loader + `";`
 	}
 	// Set default value for eaf_bypass
 	if eaf_bypass == true {
@@ -371,17 +436,12 @@ func GeneratePE(beacon_PE string, syscall_method string, beacongate string, eaf_
 	} else {
 		Beacon_Stage_p1.Variables["copy_pe_header"] = "false"
 	}
-	if smartinject == true {
-		Beacon_Stage_p1.Variables["smartinject"] = "true"
-	} else {
-		Beacon_Stage_p1.Variables["smartinject"] = "false"
-	}
 	if sleep_mask == true {
 		Beacon_Stage_p1.Variables["sleep_mask"] = "true"
 	} else {
 		Beacon_Stage_p1.Variables["sleep_mask"] = "false"
 	}
-	gen_number, _ := strconv.Atoi(Utils.GenerateNumer(0, 6))
+	gen_number := Utils.RandIndex(len(Struct.Magic_PE))
 	Beacon_Stage_p1.Variables["magic_mz_x64"] = Struct.Magic_PE[gen_number]
 	Beacon_Stage_p1.Variables["magic_pe"] = strings.ToUpper(Utils.GenerateSingleValue(2))
 
@@ -410,15 +470,23 @@ func GeneratePE(beacon_PE string, syscall_method string, beacongate string, eaf_
 	}
 
 	if beacon_PE == "" {
-		PE_Num, _ := strconv.Atoi(Utils.GenerateNumer(0, 30))
+		PE_Num := Utils.RandIndex(len(Struct.Peclone_list))
 		Beacon_Stage_p2.Variables["pe"] = Struct.Peclone_list[PE_Num]
 	}
 	if beacon_PE != "" {
-		PE_Num, _ := strconv.Atoi(beacon_PE)
-		if PE_Num > 30 {
-			log.Fatal("Error: Please provide a valid PE number less the 31 option")
+		PE_Num, err := strconv.Atoi(beacon_PE)
+		if err != nil || PE_Num < 1 || PE_Num > len(Struct.Peclone_list) {
+			log.Fatalf("Error: PE_Clone must be a number between 1 and %d", len(Struct.Peclone_list))
 		}
 		Beacon_Stage_p2.Variables["pe"] = Struct.Peclone_list[(PE_Num - 1)]
+	}
+
+	// Capture the spoofed module name before it is stripped below, so the
+	// summary line can still report it.
+	Beacon_Stage_p2.Variables["pe_name"] = PECloneName(Beacon_Stage_p2.Variables["pe"])
+	if csv.AtLeast(4, 13) {
+		Beacon_Stage_p2.Variables["pe"] = StripPECloneName(Beacon_Stage_p2.Variables["pe"])
+		Beacon_Stage_p2.Variables["pe"] = StripPECloneImageSize(Beacon_Stage_p2.Variables["pe"])
 	}
 
 	if beacongate == "" {
@@ -467,15 +535,20 @@ func GenerateProcessInject(processinject_min_alloc, injector string) map[string]
 		Process_Inject.Variables["processinject_min_alloc"] = Utils.GenerateNumer(4096, 57841)
 	}
 	if processinject_min_alloc != "" {
-		processinject_min_alloc_int, _ := strconv.Atoi(processinject_min_alloc)
-		if processinject_min_alloc_int < 4096 {
-			log.Fatal("Error: Minimum amount of memory to request for injected content needs to be greater than 4096")
-		} else {
-			Process_Inject.Variables["processinject_min_alloc"] = processinject_min_alloc
-		}
+		// The Atoi error was discarded here, so "-Allocation abc" parsed as 0
+		// and reported the misleading "needs to be greater than 4096".
+		validateNumber("-Allocation", processinject_min_alloc, 4096, 0)
+		Process_Inject.Variables["processinject_min_alloc"] = processinject_min_alloc
 	}
 	Process_Inject.Variables["ThreadStartNum"] = Utils.GenerateNumer(500, 2500)
 	Process_Inject.Variables["ThreadStartNumv2"] = Utils.GenerateNumer(500, 2500)
+	if injector == "" {
+		// Every other optional flag either defaults or picks at random when
+		// left blank. Without a default here the else branch below fires and
+		// SourcePoint cannot generate a profile at all unless -Injector is
+		// passed, even though nothing documents it as required.
+		injector = "VirtualAllocEx"
+	}
 	if injector == "NtMapViewOfSection" {
 		Process_Inject.Variables["injector"] = injector
 	} else if injector == "VirtualAllocEx" {
@@ -508,7 +581,10 @@ func GenerateProfile(Profile, CDN, CDN_Value, cert_password, custom_cert, Profil
 			fmt.Println("[!] Self Signed SSL Cerificate Used")
 		} else if num_Profile == 6 {
 			if CDN == "" {
-				log.Fatal("Error: Please provide a CDN value in order to use AzureEdge profiles")
+				log.Fatal("Error: Please provide a CDN cookie name (-CDN) in order to use AzureEdge profiles")
+			}
+			if CDN_Value == "" {
+				log.Fatal("Error: Please provide a CDN cookie value (-CDN-Value) in order to use AzureEdge profiles")
 			}
 			if cert_password == "" {
 				log.Fatal("Error: Please provide a Password value to use this profile")

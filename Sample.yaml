@@ -21,10 +21,9 @@ CDN:
 CDN_Value: 
 ProfilePath:
 Syscall_method:
-Httplib: 
+Httplib:
 ThreadSpoof: True
-Customuri: 
-CustomuriGET: 
+CustomuriGET:
 CustomuriPOST:
 Forwarder: False
 TasksMaxSize: 
@@ -38,4 +37,5 @@ TransformObfuscate: "lznt1,xor \"32\""
 SmartInject: False
 BeaconGate: "All"
 SleepMask: False
+CSVersion: "4.13"
 

@@ -659,8 +659,8 @@ header "X-Via" "haproxy-www-6g1x";
 
 http-stager {
 
-set uri_x86 "/messages/DALBNSf25";
-set uri_x64 "/messages/DALBNSF25";
+set uri_x86 "/messages/{{.Variables.stager_x86}}";
+set uri_x64 "/messages/{{.Variables.stager_x64}}";
 
 client {
 header "Accept" "*/*";
@@ -819,8 +819,8 @@ server {
 
 http-stager {
 
-set uri_x86 "/Meeting/{{.Variables.UValue}}/";
-set uri_x64 "/Meeting/{{.Variables.UValue}}/";
+set uri_x86 "/Meeting/{{.Variables.stager_x86}}/";
+set uri_x64 "/Meeting/{{.Variables.stager_x64}}/";
 
 client {
 	header "Host" "{{.Variables.Host}}";
@@ -1334,7 +1334,6 @@ stage {
 	set stomppe "true";
 	set cleanup "true";
 	set userwx "false";
-	set smartinject "{{.Variables.smartinject}}";
 	beacon_gate {
 	    {{.Variables.beacongate}}
 	}
@@ -1346,11 +1345,11 @@ stage {
 
 	#TCP and SMB beacons will obfuscate themselves while they wait for a new connection.
 	#They will also obfuscate themselves while they wait to read information from their parent Beacon.
-	set sleep_mask {{.Variables.sleep_mask}};
+	set sleep_mask "{{.Variables.sleep_mask}}";
 	set eaf_bypass "{{.Variables.eaf_bypass}}";
 	set rdll_use_syscalls "{{.Variables.rdll_use_syscalls}}";
 	set copy_pe_header "{{.Variables.copy_pe_header}}";
-	set rdll_loader "{{.Variables.rdll_loader}}";
+	{{.Variables.rdll_loader}}
 	{{.Variables.transform_obfuscate}}
 	`
 }
@@ -1624,7 +1623,7 @@ post-ex {
 	{{.Variables.thread_hint}}
 
     # pass key function pointers from Beacon to its child jobs
-    set smartinject "true";
+    set smartinject "{{.Variables.smartinject}}";
  
     # disable AMSI in powerpick, execute-assembly, and psinject
     set amsi_disable "false";
