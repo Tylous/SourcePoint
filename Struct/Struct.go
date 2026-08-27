@@ -1304,25 +1304,7 @@ set tcp_frame_header "";
 set ssh_banner "{{.Variables.SSH_Banner}}";
 set ssh_pipename "{{.Variables.SSH_pipename}}##";
 
-####Manaully add these if your doing C2 over DNS (Future Release)####
-##dns-beacon {
-#    set dns_idle             "1.2.3.4";
-#    set dns_max_txt          "199";
-#    set dns_sleep            "1";
-#    set dns_ttl              "5";
-#    set maxdns               "200";
-#    set dns_stager_prepend   "doc-stg-prepend";
-#    set dns_stager_subhost   "doc-stg-sh.";
-
-#    set beacon               "doc.bc.";
-#    set get_A                "doc.1a.";
-#    set get_AAAA             "doc.4a.";
-#    set get_TXT              "doc.tx.";
-#    set put_metadata         "doc.md.";
-#    set put_output           "doc.po.";
-#    set ns_response          "zero";
-
-#}
+{{.Variables.dns_beacon}}
 
 `
 }

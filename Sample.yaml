@@ -38,4 +38,6 @@ TransformObfuscate: "lznt1,xor \"32\""
 SmartInject: False
 BeaconGate: "All"
 SleepMask: False
+DNS: False
+DNSIdle: "0.0.0.0"
 
