@@ -1,1 +1,15 @@
+# Build output
+/SourcePoint
+/SourcePoint.exe
 
+# Generated profiles
+*.profile
+
+# Go test and coverage output
+*.test
+coverage.out
+
+# Editors
+.idea/
+.vscode/
+.DS_Store
