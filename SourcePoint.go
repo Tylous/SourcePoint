@@ -78,28 +78,30 @@ type conf struct {
 	Useragent            string `yaml:"Useragent"`
 	Datajitter           string `yaml:"Datajitter"`
 	Keylogger            string `yaml:"Keylogger"`
-	Forwarder            bool   `yaml:"Forwarder"`
+	Forwarder            *bool  `yaml:"Forwarder"`
 	TasksMaxSize         string `yaml:"TasksMaxSize"`
 	TasksProxyMaxSize    string `yaml:"TasksProxyMaxSize"`
 	TasksDnsProxyMaxSize string `yaml:"TasksDnsProxyMaxSize"`
 	Syscall_method       string `yaml:"Syscall_method"`
 	Httplib              string `yaml:"Httplib"`
-	Threadspoof          bool   `yaml:"ThreadSpoof"`
+	Threadspoof          *bool  `yaml:"ThreadSpoof"`
 	BeaconGate           string `yaml:"BeaconGate"`
-	EafBypass            bool   `yaml:"EafBypass"`
-	RdllUseSyscalls      bool   `yaml:"RdllUseSyscalls"`
-	Copy_PE_Header       bool   `yaml:"CopyPEHeader"`
+	EafBypass            *bool  `yaml:"EafBypass"`
+	RdllUseSyscalls      *bool  `yaml:"RdllUseSyscalls"`
+	Copy_PE_Header       *bool  `yaml:"CopyPEHeader"`
 	RdllLoader           string `yaml:"RdllLoader"`
 	TransformObfuscate   string `yaml:"TransformObfuscate"`
-	SmartInject          bool   `yaml:"SmartInject"`
-	SleepMask            bool   `yaml:"SleepMask"`
+	SmartInject          *bool  `yaml:"SmartInject"`
+	SleepMask            *bool  `yaml:"SleepMask"`
 }
 
 func (c *conf) getConf(yamlfile string) *conf {
 
 	yamlFile, err := ioutil.ReadFile(yamlfile)
 	if err != nil {
-		log.Printf("yamlFile.Get err   #%v ", err)
+		// Previously only logged, so a typo in -Yaml silently produced a
+		// profile built entirely from defaults.
+		log.Fatalf("Error: unable to read %s: %v", yamlfile, err)
 	}
 	err = yaml.Unmarshal(yamlFile, c)
 	if err != nil {
@@ -107,6 +109,24 @@ func (c *conf) getConf(yamlfile string) *conf {
 	}
 
 	return c
+}
+
+// setString applies a YAML value only when it is present. Assigning
+// unconditionally overwrote the flag defaults ("base64url", "winhttp",
+// "PrependLoader") with empty strings for every key a config file omits.
+func setString(dst *string, src string) {
+	if src != "" {
+		*dst = src
+	}
+}
+
+// setBool applies a YAML boolean only when the key is present, so a config file
+// that omits ThreadSpoof or SleepMask keeps their `true` defaults instead of
+// silently turning them off.
+func setBool(dst *bool, src *bool) {
+	if src != nil {
+		*dst = *src
+	}
 }
 
 func options() *FlagOptions {
@@ -117,6 +137,7 @@ func options() *FlagOptions {
 [*] Win10Chrome
 [*] Win10Edge
 [*] Win10IE
+[*] Win10Firefox
 [*] Win10
 [*] Win6.3
 [*] Linux
@@ -246,43 +267,46 @@ func main() {
 	var c conf
 	if opt.Yaml != "" {
 		c.getConf(opt.Yaml)
-		opt.stage = c.Stage
-		opt.Post_EX_Process_Name = c.Post_EX_Process_Name
-		opt.Host = c.Host
-		opt.custom_cert = c.Keystore
-		opt.cert_password = c.Password
-		opt.metadata = c.Metadata
-		opt.outFile = c.Outfile
-		opt.beacon_PE = c.PE_Clone
-		opt.Profile = c.Profile
-		opt.processinject_min_alloc = c.Allocation
-		opt.jitter = c.Jitter
-		opt.sleeptime = c.Sleep
-		opt.uri = c.Uri
-		opt.customuri = c.Customuri
-		opt.customuriGET = c.CustomuriGET
-		opt.customuriPOST = c.CustomuriPOST
-		opt.CDN = c.CDN
-		opt.useragent = c.Useragent
-		opt.ProfilePath = c.ProfilePath
-		opt.injector = c.Injector
-		opt.Datajitter = c.Datajitter
-		opt.Keylogger = c.Keylogger
-		opt.Forwarder = c.Forwarder
-		opt.tasks_max_size = c.TasksMaxSize
-		opt.tasks_proxy_max_size = c.TasksProxyMaxSize
-		opt.tasks_dns_proxy_max_size = c.TasksDnsProxyMaxSize
-		opt.syscall_method = c.Syscall_method
-		opt.httplib = c.Httplib
-		opt.threadspoof = c.Threadspoof
-		opt.beacongate = c.BeaconGate
-		opt.eaf_bypass = c.EafBypass
-		opt.rdll_use_syscalls = c.RdllUseSyscalls
-		opt.copy_pe_header = c.Copy_PE_Header
-		opt.rdll_loader = c.RdllLoader
-		opt.transform_obfuscate = c.TransformObfuscate
-		opt.smartinject = c.SmartInject
-		opt.sleep_mask = c.SleepMask
+		setString(&opt.stage, c.Stage)
+		setString(&opt.Post_EX_Process_Name, c.Post_EX_Process_Name)
+		setString(&opt.Host, c.Host)
+		setString(&opt.custom_cert, c.Keystore)
+		setString(&opt.cert_password, c.Password)
+		setString(&opt.metadata, c.Metadata)
+		setString(&opt.outFile, c.Outfile)
+		setString(&opt.beacon_PE, c.PE_Clone)
+		setString(&opt.Profile, c.Profile)
+		setString(&opt.processinject_min_alloc, c.Allocation)
+		setString(&opt.jitter, c.Jitter)
+		setString(&opt.sleeptime, c.Sleep)
+		setString(&opt.uri, c.Uri)
+		setString(&opt.customuri, c.Customuri)
+		setString(&opt.customuriGET, c.CustomuriGET)
+		setString(&opt.customuriPOST, c.CustomuriPOST)
+		setString(&opt.CDN, c.CDN)
+		// CDN_Value was never copied out of the config, so AzureEdge profiles
+		// driven from a YAML file emitted an empty cookie value.
+		setString(&opt.CDN_Value, c.CDN_Value)
+		setString(&opt.useragent, c.Useragent)
+		setString(&opt.ProfilePath, c.ProfilePath)
+		setString(&opt.injector, c.Injector)
+		setString(&opt.Datajitter, c.Datajitter)
+		setString(&opt.Keylogger, c.Keylogger)
+		setBool(&opt.Forwarder, c.Forwarder)
+		setString(&opt.tasks_max_size, c.TasksMaxSize)
+		setString(&opt.tasks_proxy_max_size, c.TasksProxyMaxSize)
+		setString(&opt.tasks_dns_proxy_max_size, c.TasksDnsProxyMaxSize)
+		setString(&opt.syscall_method, c.Syscall_method)
+		setString(&opt.httplib, c.Httplib)
+		setBool(&opt.threadspoof, c.Threadspoof)
+		setString(&opt.beacongate, c.BeaconGate)
+		setBool(&opt.eaf_bypass, c.EafBypass)
+		setBool(&opt.rdll_use_syscalls, c.RdllUseSyscalls)
+		setBool(&opt.copy_pe_header, c.Copy_PE_Header)
+		setString(&opt.rdll_loader, c.RdllLoader)
+		setString(&opt.transform_obfuscate, c.TransformObfuscate)
+		setBool(&opt.smartinject, c.SmartInject)
+		setBool(&opt.sleep_mask, c.SleepMask)
 	}
 
 	if opt.outFile == "" {
@@ -297,6 +321,5 @@ func main() {
 	if (opt.customuriGET != "" && opt.customuriPOST == "") || (opt.customuriGET == "" && opt.customuriPOST != "") {
 		log.Fatal("Error: When using CustomuriGET/CustomuriPOST, both must be sepecified")
 	}
-	fmt.Println(c.TasksMaxSize)
 	Loader.GenerateOptions(opt.stage, opt.sleeptime, opt.jitter, opt.useragent, opt.uri, opt.customuri, opt.customuriGET, opt.customuriPOST, opt.beacon_PE, opt.processinject_min_alloc, opt.Post_EX_Process_Name, opt.metadata, opt.injector, opt.Host, opt.Profile, opt.ProfilePath, opt.outFile, opt.custom_cert, opt.cert_password, opt.CDN, opt.CDN_Value, opt.Datajitter, opt.Keylogger, opt.Forwarder, opt.tasks_max_size, opt.tasks_proxy_max_size, opt.tasks_dns_proxy_max_size, opt.syscall_method, opt.httplib, opt.threadspoof, opt.beacongate, opt.eaf_bypass, opt.rdll_use_syscalls, opt.copy_pe_header, opt.rdll_loader, opt.transform_obfuscate, opt.smartinject, opt.sleep_mask)
 }

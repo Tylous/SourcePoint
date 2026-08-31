@@ -1,6 +1,8 @@
 package Utils
 
 import (
+	crand "crypto/rand"
+	"encoding/binary"
 	"fmt"
 	"log"
 	"math/rand"
@@ -16,6 +18,56 @@ const capital = "ABCDEF"
 const alpha = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890-"
 const alphanum = "ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890"
 const lowercasealpha = "abcdefghijklmnopqrstuvwxyz"
+
+// rng is seeded once, from crypto/rand, and reused for the life of the process.
+//
+// Every generator in this file used to call rand.Seed(time.Now().UnixNano())
+// on entry. That is deprecated as of go1.20, and it actively works against a
+// polymorphic generator: consecutive calls that land inside the same clock tick
+// reseed the global source to the same state and hand back byte-identical
+// "random" values. That is how a single profile ends up with duplicate URIs.
+var rng = rand.New(rand.NewSource(seed()))
+
+func seed() int64 {
+	var b [8]byte
+	if _, err := crand.Read(b[:]); err != nil {
+		return time.Now().UnixNano()
+	}
+	return int64(binary.LittleEndian.Uint64(b[:]))
+}
+
+// randRange returns a random int in [min, max). An empty or inverted range
+// returns min rather than panicking inside rand.Intn.
+func randRange(min, max int) int {
+	if max <= min {
+		return min
+	}
+	return rng.Intn(max-min) + min
+}
+
+// RandIndex returns a random index into a slice of length n, i.e. [0, n).
+//
+// Callers used to hand-write GenerateNumer(0, len(list)-1), which is exclusive
+// of its upper bound and so made the last entry of every lookup table
+// unreachable. Deriving the bound from len() keeps the tables and the picker in
+// sync when entries are added.
+func RandIndex(n int) int {
+	if n <= 0 {
+		return 0
+	}
+	return rng.Intn(n)
+}
+
+func randomString(n int, charset string) string {
+	if n <= 0 {
+		return ""
+	}
+	b := make([]byte, n)
+	for i := range b {
+		b[i] = charset[rng.Intn(len(charset))]
+	}
+	return string(b)
+}
 
 func check(e error) {
 	if e != nil {
@@ -39,138 +91,96 @@ func Writefile(outFile, result string) {
 	check(err)
 }
 
-func generateRandomBytes(n int) ([]byte, error) {
-	b := make([]byte, n)
-	_, err := rand.Read(b)
-	if err != nil {
-		return nil, err
-	}
-
-	return b, nil
-}
-
 func RandStringBytes(n int) string {
-	b := make([]byte, n)
-	for i := range b {
-		b[i] = letters[rand.Intn(len(letters))]
-
-	}
-	return string(b)
+	return randomString(n, letters)
 }
 
 func VarNumberLength(min, max int) string {
-	var r string
-	rand.Seed(time.Now().UnixNano())
-	num := rand.Intn(max-min) + min
-	n := num
-	r = RandStringBytes(n)
-	return r
+	return randomString(randRange(min, max), letters)
 }
 
 func GenerateNumer(min, max int) string {
-
-	rand.Seed(time.Now().UnixNano())
-	num := rand.Intn(max-min) + min
-	number := strconv.Itoa(num)
-	return number
-
+	return strconv.Itoa(randRange(min, max))
 }
 
 func GenerateValue(min, max int) string {
-	rand.Seed(time.Now().UnixNano())
-	num := rand.Intn(max-min) + min
-	n := num
-	b := make([]byte, n)
-	for i := range b {
-		b[i] = alpha[rand.Intn(len(alpha))]
-	}
-	return string(b)
+	return randomString(randRange(min, max), alpha)
 }
 
 func GenerateSingleValue(num int) string {
-	n := num
-	b := make([]byte, n)
-	for i := range b {
-		b[i] = alphanum[rand.Intn(len(alphanum))]
-	}
-	return string(b)
+	return randomString(num, alphanum)
 }
 
 func GenHex() string {
-	rand.Seed(time.Now().UnixNano())
+	// Up to 3 hex characters (16^3 == 4096).
+	return fmt.Sprintf("%x", randRange(0, 4096))
+}
 
-	// Generate a random number and convert it to a hexadecimal string
-	hexString := fmt.Sprintf("%x", rand.Intn(4096)) // 4096 is 16^3, ensuring up to 3 hex characters
-	return hexString
+// uriBase returns the path prefix and suffix used by a given profile. Splitting
+// this out of GenerateURIValues keeps the retry loop below readable.
+func uriBase(profileType int, post bool, customuri string) (prefix, suffix string) {
+	switch profileType {
+	case 1:
+		return "/c/msdownload/update/others/2021/10/", ""
+	case 2:
+		return "/messages/", ""
+	case 3:
+		if post {
+			return "/rest/2/meetings", ""
+		}
+		return "/functionalStatus/", ""
+	case 4:
+		return "/owa/", ""
+	case 5:
+		return "/safebrowsing/" + GenerateValue(4, 10) + "/", ""
+	case 6:
+		return "/chat/", ""
+	case 7:
+		if post {
+			return "/n", "/avp/amznussraps/"
+		}
+		return "/s/", "/field-keywords/"
+	default:
+		// Profiles 8 and 9 are operator-supplied; anything else has already
+		// been rejected by the caller.
+		return customuri, ""
+	}
 }
 
 func GenerateURIValues(numb int, profile_type int, Post bool, customuri string) string {
-	var uri string
-	var baseuri string
-	var enduri string
-	var num int
-	if profile_type == 1 {
-		baseuri = "/c/msdownload/update/others/2021/10/"
-	}
-	if profile_type == 2 {
-		baseuri = "/messages/"
-	}
-	if profile_type == 3 {
-		if Post == false {
-			baseuri = "/functionalStatus/"
-		} else if Post == true {
-			baseuri = "/rest/2/meetings"
-		}
-	}
-	if profile_type == 4 {
-		baseuri = "/owa/"
-	}
-	if profile_type == 5 {
-		baseuri = "/safebrowsing/" + GenerateValue(4, 10) + "/"
-	}
-	if profile_type == 6 {
-		baseuri = "/chat/"
-	}
-	if profile_type == 7 {
-		if Post == false {
-			baseuri = "/s/"
-			enduri = "/field-keywords/"
-		} else if Post == true {
-			baseuri = "/n"
-			enduri = "/avp/amznussraps/"
-		}
-	}
-	if profile_type == 8 {
-		baseuri = "" + customuri + ""
-	}
-	if profile_type == 9 {
-		baseuri = "" + customuri + ""
-	}
-	uri = "set uri \""
-	for ii := 1; ii <= numb; ii++ {
-		rand.Seed(time.Now().UnixNano())
-		if profile_type == 1 {
-			num = rand.Intn(30-14) + 14
-		} else {
-			num = rand.Intn(30-14) + 20
-		}
-		n := num
-		b := make([]byte, n)
-		for i := range b {
-			b[i] = alpha[rand.Intn(len(alpha))]
-		}
-		value := string(b)
-		if strings.HasPrefix(value, "-") {
-			ii = ii
-		} else {
-			if enduri != "" {
-				uri += baseuri + value + enduri + " "
-			} else {
-				uri += baseuri + value + " "
-			}
-		}
-	}
-	uri += "\";\n"
-	return uri
+	baseuri, enduri := uriBase(profile_type, Post, customuri)
 
+	var sb strings.Builder
+	sb.WriteString("set uri \"")
+
+	seen := make(map[string]bool, numb)
+	// maxAttempts stops a pathological retry loop; with 14+ character segments
+	// the rejection paths below are hit vanishingly rarely.
+	maxAttempts := numb*100 + 100
+	for generated, attempts := 0, 0; generated < numb && attempts < maxAttempts; attempts++ {
+		// Segment length: 14-29 for Windows Update, 20-35 for everything else.
+		// Preserved from the original rand.Intn(30-14)+14 / +20 expressions.
+		min, max := 20, 36
+		if profile_type == 1 {
+			min, max = 14, 30
+		}
+		value := randomString(randRange(min, max), alpha)
+
+		// A path segment starting with '-' stands out, so it is rejected. The
+		// original loop dropped the URI outright instead of retrying, so
+		// -Uri 8 could quietly emit as few as one URI.
+		if strings.HasPrefix(value, "-") {
+			continue
+		}
+		uri := baseuri + value + enduri
+		if seen[uri] {
+			continue
+		}
+		seen[uri] = true
+		sb.WriteString(uri + " ")
+		generated++
+	}
+
+	sb.WriteString("\";\n")
+	return sb.String()
 }

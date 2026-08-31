@@ -21,10 +21,9 @@ CDN:
 CDN_Value: 
 ProfilePath:
 Syscall_method:
-Httplib: 
+Httplib:
 ThreadSpoof: True
-Customuri: 
-CustomuriGET: 
+CustomuriGET:
 CustomuriPOST:
 Forwarder: False
 TasksMaxSize: 
